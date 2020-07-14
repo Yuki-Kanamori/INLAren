@@ -98,12 +98,19 @@ Q.stat <- inla.spde2.precision(stationary.model,
 
 ## ---- warning = FALSE, message = FALSE-----------------------------------
 # The location we find the correlation with respect to
+summary(map.sp) 
+# Coordinates:
+#   min  max
+# x -3757 1278
+# y  4800 9506
 loc.corr <- c(500, 5420)
 corr <- book.spatial.correlation(Q, loc = loc.corr, mesh)
 corr.stat <- book.spatial.correlation(Q.stat, loc = loc.corr,
                                       mesh)
 
 ## ----label = "plot-canada-b-corr", echo = FALSE, fig.width = 14, fig.heigh = 3.5, fig.cap = "The left plot shows the correlation structure of the Barrier model, with respect to the black point, while the right plot shows the correlation structure of the stationary model."----
+
+summary(poly.barrier) 
 
 par(mfrow = c(1, 2), mar = c(0, 0, 0, 2), mgp = c(1, 0.5, 0), las = 1)
 book.plot.field(corr, mesh = mesh, poly = poly.barrier, 
