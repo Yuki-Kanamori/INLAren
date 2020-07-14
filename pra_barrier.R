@@ -63,7 +63,7 @@ plot(poly.barrier, border = "red", add = TRUE)
 
 
 
-# higashi nihon -----------------------------------------------------------
+# North Japan -----------------------------------------------------------
 # Select region 
 map <- map("world", "Japan", fill = TRUE,
            col = "transparent", plot = TRUE)
@@ -78,8 +78,8 @@ summary(map.sp)
 
 # make a polygon ------------------------------------------------------------
 pl.sel <- SpatialPolygons(list(Polygons(list(Polygon(
-  cbind(c(135, 137, 139, 142, 143, 141), # x-axis 
-        c(35,  39,  42,  42,  38,  35.85)), # y-axis
+  cbind(c(135, 137, 139, 143, 144, 144), # x-axis 
+        c(35,  39,  42,  42,  38,  36.2)), # y-axis
   FALSE)), '0')), proj4string = CRS(proj4string(map.sp)))
 poly.water <- gDifference(pl.sel, map.sp)
 plot(pl.sel)
@@ -95,11 +95,26 @@ pl.sel = spTransform(pl.sel, kmproj)
 map.sp = spTransform(map.sp, kmproj)
 
 ## ------------------------------------------------------------------------
+mesh.not <- inla.mesh.2d(boundary = poly.water, max.edge = 30,
+                         cutoff = 2)
+
+## ----label = "plot-barr-mesh1", fig = TRUE, echo = FALSE, fig.align = "center", fig.width = 10, heigh = 4.5, width = '97%', fig.cap = "The left plot shows the polygon for land in grey and the manually constructed polygon for our study area in light blue. The right plot shows the simple mesh, constructed only in the water."----
+par(mfrow = c(1, 2), mar = c(3, 3, 0.5, 0.5), mgp = c(2, 0.7, 0), las = 1)
+par(mar = c(0, 0, 0, 0))
+
+plot(pl.sel, col = alpha("skyblue", 0.5), asp = 1)
+plot(map.sp, add = TRUE, col = alpha(gray(0.9), 0.5))
+
+plot(pl.sel, asp = 1)
+plot(map.sp, add = TRUE, col = gray(0.9))
+plot(mesh.not, add = TRUE)
+
+## ------------------------------------------------------------------------
 max.edge = 30
-bound.outer = 90
+bound.outer = 150
 mesh <- inla.mesh.2d(boundary = poly.water,
-                     max.edge = c(1, 3) * max.edge,
-                     cutoff = 2,
+                     max.edge = c(1, 5) * max.edge,
+                     cutoff = 1,
                      offset = c(max.edge, bound.outer))
 plot(mesh)
 
@@ -121,3 +136,32 @@ plot(pl.sel, add = TRUE)
 plot(map.sp, add = TRUE, col = gray(.9))
 plot(poly.barrier, border = "red", add = TRUE)
 
+## ---- warning = FALSE, message = FALSE-----------------------------------
+range <- 200
+barrier.model <- inla.barrier.pcmatern(mesh, 
+                                       barrier.triangles = barrier.tri)
+Q <- inla.rgeneric.q(barrier.model, "Q", theta = c(0, log(range)))
+
+## ---- warning = FALSE, message = FALSE-----------------------------------
+stationary.model <- inla.spde2.pcmatern(mesh, 
+                                        prior.range = c(1, 0.1), prior.sigma = c(1, 0.1))
+Q.stat <- inla.spde2.precision(stationary.model, 
+                               theta = c(log(range), 0))
+
+## ---- warning = FALSE, message = FALSE-----------------------------------
+# The location we find the correlation with respect to
+summary(map.sp)
+loc.corr <- c(500, 5420)
+corr <- book.spatial.correlation(Q, loc = loc.corr, mesh)
+corr.stat <- book.spatial.correlation(Q.stat, loc = loc.corr,
+                                      mesh)
+
+## ----label = "plot-canada-b-corr", echo = FALSE, fig.width = 14, fig.heigh = 3.5, fig.cap = "The left plot shows the correlation structure of the Barrier model, with respect to the black point, while the right plot shows the correlation structure of the stationary model."----
+
+par(mfrow = c(1, 2), mar = c(0, 0, 0, 2), mgp = c(1, 0.5, 0), las = 1)
+book.plot.field(corr, mesh = mesh, poly = poly.barrier, 
+                xlim = c(50, 900), ylim = c(5050, 5750), zlim = c(0.1, 1)) 
+points(loc.corr[1], loc.corr[2], pch = 19)
+book.plot.field(corr.stat, mesh = mesh, poly = poly.barrier, 
+                xlim = c(50, 900), ylim = c(5050, 5750), zlim = c(0.1, 1)) 
+points(loc.corr[1], loc.corr[2], pch = 19)
