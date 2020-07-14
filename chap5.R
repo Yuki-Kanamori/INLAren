@@ -21,6 +21,7 @@ IDs <- sapply(strsplit(map$names, ":"), function(x) x[1])
 map.sp <- map2SpatialPolygons(
   map, IDs = IDs,
   proj4string = CRS("+proj=longlat +datum=WGS84"))
+plot(map.sp)
 
 ## ------------------------------------------------------------------------
 pl.sel <- SpatialPolygons(list(Polygons(list(Polygon(
@@ -29,6 +30,9 @@ pl.sel <- SpatialPolygons(list(Polygons(list(Polygon(
   FALSE)), '0')), proj4string = CRS(proj4string(map.sp)))
 
 poly.water <- gDifference(pl.sel, map.sp)
+plot(pl.sel)
+plot(map.sp)
+plot(poly.water)
 
 ## ------------------------------------------------------------------------
 # Define UTM projection
@@ -60,6 +64,8 @@ mesh <- inla.mesh.2d(boundary = poly.water,
                      max.edge = c(1,5) * max.edge,
                      cutoff = 2,
                      offset = c(max.edge, bound.outer))
+plot(mesh)
+
 
 ## ------------------------------------------------------------------------
 water.tri = inla.over_sp_mesh(poly.water, y = mesh, 
@@ -68,6 +74,7 @@ num.tri = length(mesh$graph$tv[, 1])
 barrier.tri = setdiff(1:num.tri, water.tri)
 poly.barrier = inla.barrier.polygon(mesh, 
                                     barrier.triangles = barrier.tri)
+plot(poly.barrier)
 
 ## ----label = "plot-barr-mesh2", fig = TRUE, echo = FALSE, fig.align = "center", fig.width = 6, heigh = 4.5, width = '97%', fig.cap = "The mesh constructed both over water and land. The grey region is the original land map. The inner red outline marks the coastline barrier."----
 
