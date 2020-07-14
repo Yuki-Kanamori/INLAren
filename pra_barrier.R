@@ -153,6 +153,7 @@ Q.stat <- inla.spde2.precision(stationary.model,
 summary(map.sp)
 summary(pl.sel)
 loc.corr <- c(1065, 4510)
+loc.corr <- c(880, 4250)
 corr <- book.spatial.correlation(Q, loc = loc.corr, mesh)
 corr.stat <- book.spatial.correlation(Q.stat, loc = loc.corr,
                                       mesh)
@@ -161,9 +162,9 @@ corr.stat <- book.spatial.correlation(Q.stat, loc = loc.corr,
 
 par(mfrow = c(1, 2), mar = c(0, 0, 0, 2), mgp = c(1, 0.5, 0), las = 1)
 book.plot.field(corr, mesh = mesh, poly = poly.barrier, 
-                xlim = c(500, 1300), ylim = c(3873, 4700), zlim = c(0.1, 1)) 
+                xlim = c(500, 1300), ylim = c(3873, 4800), zlim = c(0.1, 1)) 
 points(loc.corr[1], loc.corr[2], pch = 19)
 book.plot.field(corr.stat, mesh = mesh, poly = poly.barrier, 
-                xlim = c(500, 1300), ylim = c(3873, 4700), zlim = c(0.1, 1)) 
+                xlim = c(500, 1300), ylim = c(3873, 4800), zlim = c(0.1, 1)) 
 points(loc.corr[1], loc.corr[2], pch = 19)
 
