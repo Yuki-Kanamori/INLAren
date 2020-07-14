@@ -111,7 +111,7 @@ plot(mesh.not, add = TRUE)
 
 ## ------------------------------------------------------------------------
 max.edge = 30
-bound.outer = 150
+bound.outer = 80
 mesh <- inla.mesh.2d(boundary = poly.water,
                      max.edge = c(1, 5) * max.edge,
                      cutoff = 1,
@@ -151,7 +151,8 @@ Q.stat <- inla.spde2.precision(stationary.model,
 ## ---- warning = FALSE, message = FALSE-----------------------------------
 # The location we find the correlation with respect to
 summary(map.sp)
-loc.corr <- c(500, 5420)
+summary(pl.sel)
+loc.corr <- c(1065, 4510)
 corr <- book.spatial.correlation(Q, loc = loc.corr, mesh)
 corr.stat <- book.spatial.correlation(Q.stat, loc = loc.corr,
                                       mesh)
@@ -160,8 +161,9 @@ corr.stat <- book.spatial.correlation(Q.stat, loc = loc.corr,
 
 par(mfrow = c(1, 2), mar = c(0, 0, 0, 2), mgp = c(1, 0.5, 0), las = 1)
 book.plot.field(corr, mesh = mesh, poly = poly.barrier, 
-                xlim = c(50, 900), ylim = c(5050, 5750), zlim = c(0.1, 1)) 
+                xlim = c(500, 1300), ylim = c(3873, 4700), zlim = c(0.1, 1)) 
 points(loc.corr[1], loc.corr[2], pch = 19)
 book.plot.field(corr.stat, mesh = mesh, poly = poly.barrier, 
-                xlim = c(50, 900), ylim = c(5050, 5750), zlim = c(0.1, 1)) 
+                xlim = c(500, 1300), ylim = c(3873, 4700), zlim = c(0.1, 1)) 
 points(loc.corr[1], loc.corr[2], pch = 19)
+
