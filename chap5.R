@@ -22,11 +22,12 @@ map.sp <- map2SpatialPolygons(
   map, IDs = IDs,
   proj4string = CRS("+proj=longlat +datum=WGS84"))
 plot(map.sp)
+summary(map.sp)
 
 ## ------------------------------------------------------------------------
 pl.sel <- SpatialPolygons(list(Polygons(list(Polygon(
-  cbind(c(-69, -62.2, -57, -57, -69, -69), 
-        c(47.8, 45.2, 49.2, 52, 52, 48)),
+  cbind(c(-69, -62.2, -57, -57, -69, -69), # x-axis 
+        c(47.8, 45.2, 49.2, 52, 52, 48)), # y-axis
   FALSE)), '0')), proj4string = CRS(proj4string(map.sp)))
 
 poly.water <- gDifference(pl.sel, map.sp)
