@@ -1,3 +1,11 @@
+# 5.2 barrier model -------------------------------------------------------
+setwd('/Users/Yuki/FRA/INLAren/spde-book-files')
+
+## ----opts, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE----
+source('R/initial_setup.R')
+opts_chunk$set(
+  fig.path = 'figs/barrier-'
+)
 library(scales)
 library(rgeos)
 ## High resolution maps when using map()
@@ -168,3 +176,67 @@ book.plot.field(corr.stat, mesh = mesh, poly = poly.barrier,
                 xlim = c(500, 1300), ylim = c(3873, 4800), zlim = c(0.1, 1)) 
 points(loc.corr[1], loc.corr[2], pch = 19)
 
+## ------------------------------------------------------------------------
+set.seed(201805)
+loc.data <- spsample(poly.water, n = 8000, type = "random")
+loc.data <- loc.data@coords
+
+## ------------------------------------------------------------------------
+# Seed is the month the code was first written times some number
+u <- inla.qsample(n = 1, Q = Q, seed = 201805 * 3)[, 1]
+A.data <- inla.spde.make.A(mesh, loc.data)
+u.data <- A.data %*% u
+
+# df is the dataframe used for modeling
+df <- data.frame(loc.data)
+names(df) <- c('locx', 'locy')
+# Size of the spatial signal
+sigma.u <- 1
+# Size of the measurement noise
+sigma.epsilon <- 0.1
+df$y <- drop(sigma.u * u.data + sigma.epsilon * rnorm(nrow(df)))
+
+## ------------------------------------------------------------------------
+stk <- inla.stack(
+  data = list(y = df$y),
+  A = list(A.data, 1),
+  effects =list(s = 1:mesh$n, intercept = rep(1, nrow(df))),
+  tag = 'est')
+
+## ------------------------------------------------------------------------
+form.barrier <- y ~ 0 + intercept + f(s, model = barrier.model)
+
+## ---- warning = FALSE, message = FALSE-----------------------------------
+res.barrier <- inla(form.barrier, data = inla.stack.data(stk),
+                    control.predictor = list(A = inla.stack.A(stk)),
+                    family = 'gaussian', 
+                    control.inla = list(int.strategy = "eb"))
+
+## ----label = "barr-res1", echo = FALSE, fig.width = 12, fig.heigh = 4, fig.cap = '(ref:barr-res1)'----
+
+par(mfrow = c(1, 2), mar = c(0, 0, 0, 2), mgp = c(1, 0.5, 0), las = 1)
+book.plot.field(u, mesh = mesh, poly = poly.barrier, 
+                xlim = c(500, 1300), ylim = c(3873, 4800), zlim = c(-5, 5))
+book.plot.field(
+  res.barrier$summary.random$s$mean + res.barrier$summary.fixed$mean[1], 
+  mesh = mesh, poly = poly.barrier, 
+  xlim = c(500, 1300), ylim = c(3873, 4800), zlim = c(-5, 5))
+
+## ------------------------------------------------------------------------
+res.barrier$summary.hyperpar
+
+## ----label = "barrier-tabres1", echo = FALSE-----------------------------
+tab.res12 <- cbind(true = c(1, range),
+                   exp(res.barrier$summary.hyperpar[2:3, c(4, 3, 5)]))
+
+tab.res12 <- cbind(
+  Parameter = c("$\\sigma$", "$range$"),
+  tab.res12)
+
+names(tab.res12) <- c("Parameter", "True", "50\\% quant.", "2.5\\% quant.",
+                      "97.5\\% quant.")
+
+knitr::kable(tab.res12,
+             row.names = FALSE,
+             caption = "Summary of the true values and the posterior of the hyperparameters in the Barrier model.",
+             format = "pandoc")
