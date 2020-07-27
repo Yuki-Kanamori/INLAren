@@ -28,7 +28,7 @@ nu <- 1
 library(RandomFields)
 set.seed(1)
 lg.s <- rLGCP('matern', beta0, var = sigma2x,
-              scale = range / sqrt(8), nu = nu, win = win)
+              scale = range / sqrt(8), nu = nu, win = swin)
 
 ## ----xy------------------------------------------------------------------
 xy <- cbind(lg.s$x, lg.s$y)[, 2:1]
