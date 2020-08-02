@@ -156,7 +156,7 @@ sum(exp(beta0 + beta1 * gridcov) * diff(x0[1:2]) * diff(y0[1:2]))
 set.seed(1)
 lg.s.c <- rLGCP('matern', im(beta0 + beta1 * gridcov, xcol = x0,
                              yrow = y0), var = sigma2x, scale = range / sqrt(8), 
-                nu = 1, win = win)
+                nu = 1, win = swin)
 
 ## ----xyc-----------------------------------------------------------------
 xy.c <- cbind(lg.s.c$x, lg.s.c$y)[, 2:1]
