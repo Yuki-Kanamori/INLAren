@@ -150,6 +150,8 @@ x0 <- seq(min(mesh$loc[, 1]), max(mesh$loc[, 1]), length = npix)
 y0 <- seq(min(mesh$loc[, 2]), max(mesh$loc[, 2]), length = npix)
 gridcov <- outer(x0, y0, function(x,y) cos(x) - sin(y - 2))
 
+x1 = 
+
 ## ----n-exp-cov-----------------------------------------------------------
 beta1 <- -0.5
 sum(exp(beta0 + beta1 * gridcov) * diff(x0[1:2]) * diff(y0[1:2]))
