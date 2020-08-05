@@ -51,6 +51,8 @@ points(xy, pch = 19)
 loc.d <- 3 * cbind(c(0, 1, 1, 0, 0), c(0, 0, 1, 1, 0))
 mesh <- inla.mesh.2d(loc.domain = loc.d, offset = c(0.3, 1), 
                      max.edge = c(0.3, 0.7), cutoff = 0.05)
+plot(mesh)
+mesh_loc = mesh$loc #492の座標点が得られた
 nv <- mesh$n
 
 ## ----ppmesh, echo = FALSE, fig.cap = "Mesh used to fit a log-Gaussian Cox process to a point pattern."----
