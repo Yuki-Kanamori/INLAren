@@ -69,13 +69,15 @@ mesh3 = inla.mesh.2d(loc.domain = dom_tok, mako_lonlat, max.edge = c(0.2, 0.2), 
 plot(mesh3)
 mesh4 = inla.mesh.2d(loc.domain = dom_tok, mako_lonlat, max.edge = c(0.2, 0.2), cutoff = 0.1, offset = c(0.5, 0.3))
 plot(mesh4)
+mesh5 = inla.mesh.2d(loc.domain = dom_tok, mako_lonlat, max.edge = c(0.2, 0.2), cutoff = 0.1, offset = c(0.5, 0.3))
+plot(mesh5)
 
 ## PC-priorでrangeとmarginal varianceの範囲がどれくらいか分からない
-spde = inla.spde2.pcmatern(mesh = mesh4, alpha = 2, prior.range = c(0.01, 0.05), prior.sigma = c(1, 0.01))
+spde = inla.spde2.pcmatern(mesh = mesh2, alpha = 2, prior.range = c(0.01, 0.05), prior.sigma = c(1, 0.01))
 
-A_mako = inla.spde.make.A(mesh4, loc = mako_lonlat)
+A_mako = inla.spde.make.A(mesh2, loc = mako_lonlat)
 
-dim(A_mako) #199, 284
+dim(A_mako) #199, 284; # of data times # of vertices in the mesh
 table(rowSums(A_mako > 0))
 table(rowSums(A_mako))
 table(colSums(A_mako) > 0)
@@ -115,16 +117,21 @@ w1 = c(rep(NA, n), rep(1, n))
 # 置き換えられる個数よりも多くの要素が与えられました
 stack_obs = inla.stack(
   data = df_mako_b$pa,
-  A = list(A_mako, 1),
-  effects = list(i = 1:spde$n.spde,
-                 m = 1:n),
+  A = list(1, A_mako),
+  effects = list(m = 1:n,
+                 i = 1:spde$n.spde),
   tag = "mako_obs"
 )
 
 # faked zero data (system model)
 # z_i = alpha + beta*enc_i + s_i
+
 # l[[k]] <- rep(l[[k]], n.A) でエラー: 
 # 置き換えられる個数よりも多くの要素が与えられました
+
+# parse.input.list(effects[[k]], input.ncol(A[[k]]), paste("Effect block ",  でエラー: 
+# Effect block 2:
+# Mismatching row sizes: 394, n.A=284
 stack_system = inla.stack(
   data = rep(0, n),
   A = list(A_mako, 1),
