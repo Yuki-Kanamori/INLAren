@@ -49,13 +49,28 @@ y2 <- rnorm(n, eta2, s123[2])
 y3 <- rnorm(n, eta3, s123[3])
 
 ## ----mesh----------------------------------------------------------------
+# locデータを使わずにメッシュを作成しても，三角形の中にlocが入っているらしい（Asのdim()以降で確認）
 mesh <- inla.mesh.2d(
   loc.domain = cbind(c(0, 1, 1, 0), c(0, 0, 1, 1)),
   max.edge = c(0.1, 0.3), offset = c(0.05, 0.35), cutoff = 0.05)
 plot(mesh)
 
+
+# mesh2 <- inla.mesh.2d(
+#   loc.domain = cbind(c(0, 1, 1, 0), c(0, 0, 1, 1)),
+#   loc,
+#   max.edge = c(0.1, 0.3), offset = c(0.05, 0.35), cutoff = 0.05)
+# plot(mesh2)
+
 ## ----As------------------------------------------------------------------
 As <- inla.spde.make.A(mesh, loc)
+
+dim(As) #50, 394; # of data times # of vertices in the mesh
+table(rowSums(As > 0))
+table(rowSums(As))
+table(colSums(As) > 0)
+table(as.numeric(As))
+
 
 ## ----spde----------------------------------------------------------------
 spde <- inla.spde2.pcmatern(mesh, alpha = 2, 
