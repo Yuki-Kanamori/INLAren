@@ -72,6 +72,9 @@ mesh4 = inla.mesh.2d(loc.domain = dom_tok, mako_lonlat, max.edge = c(0.2, 0.2), 
 plot(mesh4)
 mesh5 = inla.mesh.2d(loc.domain = dom_tok, mako_lonlat, max.edge = c(1, 1), cutoff = 0.5, offset = c(0.3, 0.2))
 plot(mesh5)
+# mesh6 = inla.mesh.2d(loc.domain = dom_tok, mako_lonlat, max.edge = c(0.9, 0.9), cutoff = 0.5, offset = c(0.3, 0.3))
+# plot(mesh6)
+
 
 ## PC-priorでrangeとmarginal varianceの範囲がどれくらいか分からない
 spde = inla.spde2.pcmatern(mesh = mesh5, alpha = 2, prior.range = c(0.01, 0.05), prior.sigma = c(1, 0.01))
