@@ -133,4 +133,6 @@ stack_system = inla.stack(
   tag = "mako_fake"
 )
 
-stack = inla.stack()
+stack = inla.stack(stack_obs, stack_system)
+
+fomula = y ~ 
