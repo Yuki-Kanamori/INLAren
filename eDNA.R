@@ -23,7 +23,8 @@ head(lonlat, 2)
 lonlat = lonlat %>% dplyr::rename(Point = pop)
 mifish = left_join(mifish, lonlat, by = "Point")
 
-df = mifish %>% filter(CPUE == 1) %>% mutate(pa = ifelse(df$count > 0, 1, 0))
+df = mifish %>% filter(CPUE == 1) 
+df = df %>% mutate(pa = ifelse(df$count > 0, 1, 0))
 unique(df$name_j)
 
 
@@ -69,13 +70,13 @@ mesh3 = inla.mesh.2d(loc.domain = dom_tok, mako_lonlat, max.edge = c(0.2, 0.2), 
 plot(mesh3)
 mesh4 = inla.mesh.2d(loc.domain = dom_tok, mako_lonlat, max.edge = c(0.2, 0.2), cutoff = 0.1, offset = c(0.5, 0.3))
 plot(mesh4)
-mesh5 = inla.mesh.2d(loc.domain = dom_tok, mako_lonlat, max.edge = c(0.01, 0.1), cutoff = 0.1, offset = c(0.5, 0.3))
+mesh5 = inla.mesh.2d(loc.domain = dom_tok, mako_lonlat, max.edge = c(1, 1), cutoff = 0.5, offset = c(0.3, 0.2))
 plot(mesh5)
 
 ## PC-priorでrangeとmarginal varianceの範囲がどれくらいか分からない
-spde = inla.spde2.pcmatern(mesh = mesh2, alpha = 2, prior.range = c(0.01, 0.05), prior.sigma = c(1, 0.01))
+spde = inla.spde2.pcmatern(mesh = mesh5, alpha = 2, prior.range = c(0.01, 0.05), prior.sigma = c(1, 0.01))
 
-A_mako = inla.spde.make.A(mesh2, loc = mako_lonlat)
+A_mako = inla.spde.make.A(mesh5, loc = mako_lonlat)
 
 dim(A_mako) #199, 284; # of data times # of vertices in the mesh
 table(rowSums(A_mako > 0))
