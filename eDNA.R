@@ -85,6 +85,7 @@ dim(A_mako) #199, 35; # of data times # of vertices in the mesh
 table(rowSums(A_mako > 0))
 table(rowSums(A_mako))
 table(colSums(A_mako) > 0)
+table(as.numeric(A_mako))
 
 ## make data for inla.stack()
 n = nrow(df_mako_b)
