@@ -81,7 +81,7 @@ spde = inla.spde2.pcmatern(mesh = mesh5, alpha = 2, prior.range = c(0.01, 0.05),
 
 A_mako = inla.spde.make.A(mesh5, loc = mako_lonlat)
 
-dim(A_mako) #199, 284; # of data times # of vertices in the mesh
+dim(A_mako) #199, 35; # of data times # of vertices in the mesh
 table(rowSums(A_mako > 0))
 table(rowSums(A_mako))
 table(colSums(A_mako) > 0)
