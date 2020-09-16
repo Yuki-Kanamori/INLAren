@@ -69,7 +69,7 @@ mesh3 = inla.mesh.2d(loc.domain = dom_tok, mako_lonlat, max.edge = c(0.2, 0.2), 
 plot(mesh3)
 mesh4 = inla.mesh.2d(loc.domain = dom_tok, mako_lonlat, max.edge = c(0.2, 0.2), cutoff = 0.1, offset = c(0.5, 0.3))
 plot(mesh4)
-mesh5 = inla.mesh.2d(loc.domain = dom_tok, mako_lonlat, max.edge = c(0.2, 0.2), cutoff = 0.1, offset = c(0.5, 0.3))
+mesh5 = inla.mesh.2d(loc.domain = dom_tok, mako_lonlat, max.edge = c(0.01, 0.1), cutoff = 0.1, offset = c(0.5, 0.3))
 plot(mesh5)
 
 ## PC-priorでrangeとmarginal varianceの範囲がどれくらいか分からない

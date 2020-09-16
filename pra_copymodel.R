@@ -52,6 +52,7 @@ y3 <- rnorm(n, eta3, s123[3])
 mesh <- inla.mesh.2d(
   loc.domain = cbind(c(0, 1, 1, 0), c(0, 0, 1, 1)),
   max.edge = c(0.1, 0.3), offset = c(0.05, 0.35), cutoff = 0.05)
+plot(mesh)
 
 ## ----As------------------------------------------------------------------
 As <- inla.spde.make.A(mesh, loc)
@@ -67,7 +68,7 @@ stack1 <- inla.stack(
   A = list(1, As, 1),
   effects = list(
     data.frame(beta0 = 1, beta1 = x),
-    s = 1:spde$n.spde,
+    s = 1:spde$n.spde, #394
     e1 = 1:n),
   tag = 'y1')
 
