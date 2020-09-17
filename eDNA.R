@@ -130,9 +130,9 @@ w1 = c(rep(NA, n), rep(1, n))
 # Row count mismatch for A: 35,199
 stack_obs = inla.stack(
   data = df_mako_b$pa,
-  A = list(1, A_mako),
-  effects = list(m = rep(1, n),
-                 i = 1:spde$n.spde),
+  A = list(A_mako, 1),
+  effects = list(list(i = 1:spde$n.spde), #spatial random effect
+                 list(m = rep(1, nrow(df_mako_b)))), #weight for latent variable, z_i
   tag = "mako_obs"
 )
 
