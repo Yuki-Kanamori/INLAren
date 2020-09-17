@@ -47,6 +47,7 @@ unique(env2018$site)
 
 
 df_mako = df %>% filter(name_j == "マコガレイ")
+# df_mako = df %>% filter(name_j == "コノシロ")
 summary(df_mako)
 
 rep = df_mako %>% group_by(Point, Date, Depth) %>% summarize(repcount = n())
@@ -120,10 +121,17 @@ w1 = c(rep(NA, n), rep(1, n))
 # y_i = m_i*z_i + s_i
 # l[[k]] <- rep(l[[k]], n.A) でエラー: 
 # 置き換えられる個数よりも多くの要素が与えられました
+# 
+# parse.input.list(effects[[k]], input.ncol(A[[k]]), paste("Effect block ",  でエラー: 
+# Effect block 2:
+# Mismatching row sizes: 1440, n.A=35
+# 
+# (function (data, A, effects, tag = "", compress = TRUE, remove.unused = TRUE)  でエラー: 
+# Row count mismatch for A: 35,199
 stack_obs = inla.stack(
   data = df_mako_b$pa,
   A = list(1, A_mako),
-  effects = list(m = 1:n,
+  effects = list(m = rep(1, mesh5$n),
                  i = 1:spde$n.spde),
   tag = "mako_obs"
 )
@@ -147,4 +155,35 @@ stack_system = inla.stack(
 
 stack = inla.stack(stack_obs, stack_system)
 
-fomula = y ~ 
+# fomula = y ~ 
+  
+  
+  
+  
+  
+  
+  
+n = 200
+loc = matrix(runif(n*2),n,2)
+mesh = inla.mesh.create.helper(points.domain=loc,
+                               max.edge=c(0.05, 0.2))
+proj.obs = inla.mesh.projector(mesh, loc=loc)
+proj.pred = inla.mesh.projector(mesh, loc=mesh$loc)
+spde = inla.spde2.matern(mesh,
+                         B.tau=cbind(log(1), 1, 0),
+                         B.kappa=matrix(c(log(sqrt(8)/0.2), 0, 1), 1, 3))
+
+covar = rnorm(n)
+field = inla.qsample(n=1, Q=inla.spde2.precision(spde, theta=c(0,0)))[,1]
+y = 2*covar + inla.mesh.project(proj.obs, field)
+
+A.obs = inla.spde.make.A(mesh, loc=loc)
+A.pred = inla.spde.make.A(mesh, loc=proj.pred$loc)
+dim(A.obs)
+stack.obs =
+  inla.stack(data=list(y=y),
+             A=list(A.obs, 1),
+             effects=list(c(list(intercept=rep(1, mesh$n)),
+                            inla.spde.make.index("spatial", spde$n.spde)),
+                          covar=covar),
+             tag="obs")
