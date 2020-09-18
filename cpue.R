@@ -1,7 +1,7 @@
 setwd("/Users/Yuki/Dropbox/Network2020")
 data = read.csv("VASTdata.csv")
 head(data, 2)
-mako = data %>% filter(FISH == "makogarei")
+mako = data %>% filter(FISH == "makogarei", Y == 2018)
 
 dom_tok = cbind(c(139.7, 139.5, 139.7, 140.1, 140.3, 139.9), # x-axis 
                 c(35.2,  35.4,  35.8,  35.8,  35.4,  35.2))
@@ -20,11 +20,13 @@ mesh6 = inla.mesh.2d(loc.domain = dom_tok, cpue_mako_lonlat, max.edge = c(0.5, 0
 plot(mesh6)
 mesh7 = inla.mesh.2d(loc.domain = dom_tok, cpue_mako_lonlat, max.edge = c(0.8, 0.8), cutoff = 0.4, offset = c(0.8, 0.8))
 plot(mesh7)
+mesh8 = inla.mesh.2d(loc.domain = dom_tok, cpue_mako_lonlat, max.edge = c(0.05, 0.05), cutoff = 0.2, offset = c(0.8, 0.05))
+plot(mesh8)
 
 ## PC-priorでrangeとmarginal varianceの範囲がどれくらいか分からない
-cpue_spde = inla.spde2.pcmatern(mesh = mesh7, alpha = 2, prior.range = c(0.01, 0.05), prior.sigma = c(1, 0.01))
+cpue_spde = inla.spde2.pcmatern(mesh = mesh8, alpha = 2, prior.range = c(0.01, 0.05), prior.sigma = c(1, 0.01))
 
-A_cpue_mako = inla.spde.make.A(mesh7, loc = cpue_mako_lonlat)
+A_cpue_mako = inla.spde.make.A(mesh8, loc = cpue_mako_lonlat)
 
 dim(A_cpue_mako) #199, 35; # of data times # of vertices in the mesh
 table(rowSums(A_cpue_mako > 0))
@@ -32,10 +34,20 @@ table(rowSums(A_cpue_mako))
 table(colSums(A_cpue_mako) > 0)
 # table(as.numeric(A_cpue_mako))
 
+i_index = inla.spde.make.index("i", n.spde = cpue_spde$n.spde)
+
+# stack_cpue = inla.stack(
+#   data = mako$CPUE,
+#   A = list(A_cpue_mako, 1),
+#   effects = list(list(i = 1:cpue_spde$n.spde), #spatial random effect
+#                  list(m = rep(1, nrow(mako)))), #intercept?
+#   tag = "mako_cpue"
+# )
+
 stack_cpue = inla.stack(
   data = mako$CPUE,
   A = list(A_cpue_mako, 1),
-  effects = list(list(i = 1:cpue_spde$n.spde), #spatial random effect
-                 list(m = rep(1, nrow(mako)))), #intercept?
+  effects = list(i = i_index, #spatial random effect
+                 m = rep(1, nrow(mako))), #intercept?
   tag = "mako_cpue"
 )
