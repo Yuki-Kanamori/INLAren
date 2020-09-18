@@ -105,7 +105,7 @@ points(loc.corr[1], loc.corr[2], pch = 19)
 ## ------------------------------------------------------------------------
 set.seed(201805)
 loc.data <- spsample(poly.water, n = 1000, type = "random")
-loc.data <- loc.data@coords
+loc.data <- loc.data@coords #matrix(UTM?)
 
 ## ------------------------------------------------------------------------
 # Seed is the month the code was first written times some number
