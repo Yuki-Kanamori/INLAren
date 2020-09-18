@@ -88,7 +88,7 @@ library(rgeos)
 library(mapdata) 
 ## Map features, map2SpatialPolygons()
 library(maptools)
-
+require(tidyverse)
 
 setwd("/Users/Yuki/Dropbox/Network2020")
 data = read.csv("VASTdata.csv")
