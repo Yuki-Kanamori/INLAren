@@ -78,10 +78,10 @@ stack_cpue = inla.stack(
 
 # re-try --------------------------------------------------------
 ## ----opts, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE----
-source('R/initial_setup.R')
-opts_chunk$set(
-  fig.path = 'figs/barrier-'
-)
+# source('R/initial_setup.R')
+# opts_chunk$set(
+#   fig.path = 'figs/barrier-'
+# )
 library(scales)
 library(rgeos)
 ## High resolution maps when using map()
@@ -89,6 +89,7 @@ library(mapdata)
 ## Map features, map2SpatialPolygons()
 library(maptools)
 require(tidyverse)
+require(INLA)
 
 setwd("/Users/Yuki/Dropbox/Network2020")
 data = read.csv("VASTdata.csv")
@@ -152,4 +153,37 @@ points(x = mako$Lon,
        y = mako$Lat,
        col = 2,
        pch = 16, 
-       cex = 0.5)
+       cex = 0.5) #not run
+
+
+range <- 200
+barrier.model <- inla.barrier.pcmatern(mesh, 
+                                       barrier.triangles = barrier.tri)
+Q <- inla.rgeneric.q(barrier.model, "Q", theta = c(0, log(range)))
+
+loc.corr <- c(10, 10)
+corr <- book.spatial.correlation(Q, loc = loc.corr, mesh)
+
+par(mfrow = c(1, 2), mar = c(0, 0, 0, 2), mgp = c(1, 0.5, 0), las = 1)
+book.plot.field(corr, mesh = mesh, poly = poly.barrier) 
+
+
+# zone = 53
+# LongLatToUTM<-function(x,y,zone){
+#   require(sp)
+#   xy <- data.frame(ID = 1:length(x), X = x, Y = y)
+#   coordinates(xy) <- c("X", "Y")
+#   proj4string(xy) <- CRS("+proj=longlat +datum=WGS84")  ## for example
+#   res <- spTransform(xy, CRS(paste("+proj=utm +zone=",zone," ellps=WGS84",sep='')))
+#   return(as.data.frame(res))
+# }
+# test = LongLatToUTM(mako$Lon, mako$Lat, zone) #合ってるのか．．．？
+
+cpue_mako_lonlat = SpatialPolygons(list(Polygons(list(Polygon(
+  cbind(mako$Lon, # x-axis 
+        mako$Lat), # y-axis
+  FALSE)), '0')), proj4string = CRS(proj4string(map.sp))) # Formal class SpatialPolygons
+cpue_mako_lonlat2 = spTransform(cpue_mako_lonlat, kmproj) # Formal class SpatialPolygons
+lonlat = cpue_mako_lonlat2@polygons[[1]]@Polygons[[1]]@coords
+
+A.data <- inla.spde.make.A(mesh, lonlat)
