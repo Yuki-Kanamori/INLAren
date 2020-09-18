@@ -1,0 +1,149 @@
+<!--?php include 'header.php'; ?--><!doctype html><html><head>
+        <meta http-equiv="Content-Type" content="text/html, charset=UTF-8">
+        <title>Ecological Archives A025-099-S1</title>
+        
+        <script type="text/javascript" src="http://www.esapubs.org/templates/scripts/analytics.js"></script>
+    <style type="text/css">
+body {background-color: #FFF; font-family: Times New Roman, Times, serif;}
+
+hr {
+	height: .15em;
+	color: gray;
+	background-color: gray;
+	border-width: 0;
+}
+hr.divider {
+	width: 50em;
+	margin-top: 1.7em;
+	margin-bottom: 2em;
+	margin-left: 0;
+}
+
+p {max-width: 50em;}
+
+li {max-width: 48em;}
+
+sub, sup {font-size: .7em;}
+
+table, td {
+	border: 1px solid black;
+	border-collapse: collapse;
+	text-align: center;
+    vertical-align: top;
+}
+td {max-width: 70em; padding: .1em;}
+table, tr {
+	padding: .1em;}
+tr:first-child {font-weight: bold;}
+
+table.equation {border: none; width: 48em;}
+.equation td {border: none; text-align: left; vertical-align: middle;}
+.equation tr:first-child {font-weight: normal;}
+.equation td:last-child {text-align: right; width: 3em;}
+
+table.noFormat {border: none; text-align: inherit;}
+.noFormat td {border: none; text-align: inherit;}
+.noFormat tr:first-child {font-weight: normal;}
+
+/* Position modifiers.  Use these to alter placement of elements on the page. */
+
+.center {margin-left: auto; margin-right: auto; text-align: center;}
+.textCenter {text-align: center;}
+.textLeft  {text-align:left;}
+
+.indent {margin-left: 2em;}
+p.indent {max-width: 48em;}
+p.heading.indent {max-width: 40em;}
+.halfIndent {margin-left: 1em;}
+
+/* Font modifiers.  Use these to alter font style and type. */
+
+.courier {font-family: Courier new, Courier, mono;}
+.heading {max-width: 45em; margin-top: .7em; font-size: 1.2em; font-weight: bold;}
+.overline {text-decoration: overline;}
+.over {text-decoration: overline;}
+.roman{font-style: normal; text-decoration: none; font-weight: normal;}
+.smallcaps {font-variant: small-caps;}
+
+#links {font-size: .7em; font-family: Arial, Helvetica, sans-serif;}
+</style></head>
+    <body bgcolor="#FFFFFF" leftmargin="20em">
+        <p class="heading">Beth .E Ross, Mevin B. Hooten, Jean-Michel DeVink, David N. Koons. 2015. Combined effects of climate, predation, and density dependence on Greater and Lesser Scaup population dynamics. <i>Ecological Applications</i> 25:1606–1617. <a href="http://dx.doi.org/10.1890/14-0582.1">http://dx.doi.org/10.1890/14-0582.1</a></p>
+        <hr>
+        <p class="heading">Supplement</p>
+        <p class="heading indent">
+            Annotated INLA code for the model with snow cover extent from 1967–2010.
+            <br><i>Ecological Archives</i> A025-099-S1.
+        </p>
+        <p style="font-weight: bold;"><a href="../../../copyright.htm">Copyright</a></p>
+        <hr>
+        <p class="heading indent">
+            <a href="#authors">Authors</a><br>
+            <a href="#filelist">File list (downloads)</a><br>
+            <a href="#desc">Description</a>
+        </p>
+        <hr>
+        <!-- Content starts here!  Don't delete anything before this! -->
+        <p id="authors" class="heading">Author(s)</p>
+        <div class="indent">
+            <p>Beth E. Ross<br>
+            Department of Wildland Resources<br>
+            Utah State University<br>
+            Logan, UT USA<br>
+            Email: <a href="mailto:beross@ksu.edu">beross@ksu.edu</a></p>
+            
+            <p>Mevin B. Hooten<br>
+            U.S. Geological Survey<br>
+            Colorado Cooperative Fish and Wildlife Research Unit<br>
+            Fort Collins, Colorado, USA</p>
+            
+            <p>Department of Fish, Wildlife, and Conservation Biology<br>
+            Colorado State University<br>
+            Fort Collins, Colorado, USA</p>
+            
+            <p>Department of Statistics<br>
+            Colorado State University<br>
+            Fort Collins, Colorado, USA</p>
+            
+            <p>Jean-Michel DeVink<br>
+            Stantec Consulting, Inc.<br>
+            Saskatoon, Saskatchewan, Canada</p>
+            
+            <p>David N. Koons<br>
+            Department of Wildland Resources and the Ecology Center<br>
+            Utah State University<br>
+            Logan, UT USA </p>
+            
+        </div>
+        <hr>
+        <p id="filelist" class="heading">File list</p>
+        <div class="indent">
+            <p><span class="courier"><a href="INLA_code.R">INLA_code.R</a>  (MD5:  68c372169a851d7616d30172ce203f50)</span></p>
+            <p><span class="courier"><a href="ss_model_inla.csv">ss_model_inla.csv</a>  (MD5:  3b3bf472211df425134b22e33dbac549)</span></p>
+            
+    </div>
+        <p id="desc" class="heading">Description</p>
+        <div class="indent">
+            <p><span class="courier">INLA_code.R</span> is an R script file to analyze scaup pair abundance using a Gompertz state-space model containing a covariate for snow cover extent. This script assumes that the INLA package has been downloaded from <a href="http://www.r-inla.org">http://www.r-inla.org</a>. The data set (<span class="courier">ss_model_inla.csv</span>) should be in the working directory when running this code.</p>
+            <p>s<span class="courier">s_model_inla.csv</span>&nbsp;is a comma-separated text file containing the scaup  dataset. Column definitions are:</p>
+            <ol>
+              <li>y: counts from each  stratum in each year from BPOP aerial survey</li>
+              <li>stratum: each stratum  number, adjusted for analysis in INLA, where ‘1’ = Stratum 13 as defined by the  BPOP survey, ‘2’ = Stratum 14, ‘3’ = Stratum 15, ‘4’ = Stratum 16, ‘5’ = Stratum 17, and ‘6’ = Stratum 18</li>
+              <li>year: year since  beginning of survey (1955)</li>
+              <li>stand.snow:  standardized covariate for snow cover extent</li>
+              <li>N: number of segments flown in each stratum each year</li>
+          </ol>
+            
+        </div>
+        <!-- Content stops here!  Don't delete anything after this! -->
+        <hr>
+        <p id="links" class="center">
+            <a href="../../../../default.htm" target="_top">ESA Publications</a> |
+            <a href="../../../default.htm" target="_top">Ecological Archives</a> |
+            <a href="../../../copyright.htm" target="_top">Permissions</a> |
+            <a href="../../../citation.htm" target="_top">Citation</a> |
+            <a href="../../../default.htm" target="_top">Contacts</a>
+        </p>
+    
+
+<!--?php mysql_close($con); ?--></body></html>
