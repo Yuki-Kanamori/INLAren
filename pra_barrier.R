@@ -21,14 +21,15 @@ map <- map("world", "Japan", fill = TRUE,
 IDs <- sapply(strsplit(map$names, ":"), function(x) x[1])
 map.sp <- map2SpatialPolygons(
   map, IDs = IDs,
-  proj4string = CRS("+proj=longlat +datum=WGS84"))
+  proj4string = CRS("+proj=longlat +datum=WGS84")) #緯度経度データ
 summary(map.sp)
 
 # make a polygon ------------------------------------------------------------
 pl.sel <- SpatialPolygons(list(Polygons(list(Polygon(
   cbind(c(139.7, 139.5, 139.7, 140.1, 140.3, 139.9), # x-axis 
         c(35.2,  35.4,  35.8,  35.8,  35.4,  35.2)), # y-axis
-  FALSE)), '0')), proj4string = CRS(proj4string(map.sp)))
+  FALSE)), '0')), proj4string = CRS(proj4string(map.sp))) #緯度経度データ
+summary(pl.sel)
 poly.water <- gDifference(pl.sel, map.sp)
 plot(pl.sel)
 plot(map.sp)
