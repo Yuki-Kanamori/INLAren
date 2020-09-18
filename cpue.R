@@ -22,9 +22,9 @@ mesh7 = inla.mesh.2d(loc.domain = dom_tok, cpue_mako_lonlat, max.edge = c(0.8, 0
 plot(mesh7)
 
 ## PC-priorでrangeとmarginal varianceの範囲がどれくらいか分からない
-cpue_spde = inla.spde2.pcmatern(mesh = mesh7, alpha = 2, prior.range = c(0.01, 0.05), prior.sigma = c(1, 0.01))
+cpue_spde = inla.spde2.pcmatern(mesh = mesh4, alpha = 2, prior.range = c(0.01, 0.05), prior.sigma = c(1, 0.01))
 
-A_cpue_mako = inla.spde.make.A(mesh7, loc = cpue_mako_lonlat)
+A_cpue_mako = inla.spde.make.A(mesh4, loc = cpue_mako_lonlat)
 
 dim(A_cpue_mako) #199, 35; # of data times # of vertices in the mesh
 table(rowSums(A_cpue_mako > 0))
