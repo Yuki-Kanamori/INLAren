@@ -1,3 +1,6 @@
+require(INLA)
+require(tidyverse)
+
 setwd("/Users/Yuki/Dropbox/Network2020")
 data = read.csv("VASTdata.csv")
 head(data, 2)
@@ -5,44 +8,56 @@ mako = data %>% filter(FISH == "makogarei", Y == 2018)
 
 dom_tok = cbind(c(139.7, 139.5, 139.7, 140.1, 140.3, 139.9), # x-axis 
                 c(35.2,  35.4,  35.8,  35.8,  35.4,  35.2)) # matrix data
-dom_tok = SpatialPolygons(list(Polygons(list(Polygon(
-  cbind(c(139.7, 139.5, 139.7, 140.1, 140.3, 139.9), # x-axis 
-        c(35.2,  35.4,  35.8,  35.8,  35.4,  35.2)), # y-axis
-  FALSE)), '0')), proj4string = CRS(proj4string(map.sp))) # Formal class SpatialPolygons
+plot(dom_tok)
+# dom_tok = SpatialPolygons(list(Polygons(list(Polygon(
+#   cbind(c(139.7, 139.5, 139.7, 140.1, 140.3, 139.9), # x-axis 
+#         c(35.2,  35.4,  35.8,  35.8,  35.4,  35.2)), # y-axis
+#   FALSE)), '0')), proj4string = CRS(proj4string(map.sp))) # Formal class SpatialPolygons
 
-cpue_mako_lonlat = cbind(mako$Lon, mako$Lat) # matrix data
-cpue_mako_lonlat = SpatialPolygons(list(Polygons(list(Polygon(
-  cbind(mako$Lon, # x-axis 
-        mako$Lat), # y-axis
-  FALSE)), '0')), proj4string = CRS(proj4string(map.sp))) # Formal class SpatialPolygons
+cpue_mako_lonlat = as.matrix(cbind(mako$Lon, mako$Lat)) # matrix data
+# cpue_mako_lonlat = SpatialPolygons(list(Polygons(list(Polygon(
+#   cbind(mako$Lon, # x-axis 
+#         mako$Lat), # y-axis
+#   FALSE)), '0')), proj4string = CRS(proj4string(map.sp))) # Formal class SpatialPolygons
+# 
+# kmproj = CRS("+proj=utm +zone=53 ellps=WGS84 +units=km") #with warning
+# dom_tok2 = spTransform(dom_tok, kmproj) # Formal class SpatialPolygons
+# cpue_mako_lonlat2 = spTransform(cpue_mako_lonlat, kmproj) # Formal class SpatialPolygons
+# plot(dom_tok2)
 
-kmproj = CRS("+proj=utm +zone=53 ellps=WGS84 +units=km") #with warning
-dom_tok2 = spTransform(dom_tok, kmproj) # Formal class SpatialPolygons
-cpue_mako_lonlat2 = spTransform(cpue_mako_lonlat, kmproj) # Formal class SpatialPolygons
-plot(dom_tok2)
-
-mesh1 = inla.mesh.2d(cpue_mako_lonlat2, max.edge = c(0.2, 0.2))
+mesh1 = inla.mesh.2d(cpue_mako_lonlat, max.edge = c(0.2, 0.2))
 plot(mesh1)
-mesh2 = inla.mesh.2d(cpue_mako_lonlat2, max.edge = c(0.2, 0.2), cutoff = 0.1)
+mesh2 = inla.mesh.2d(cpue_mako_lonlat, max.edge = c(0.2, 0.2), cutoff = 0.1)
 plot(mesh2)
-mesh3 = inla.mesh.2d(loc.domain = dom_tok2, cpue_mako_lonlat2, max.edge = c(0.2, 0.2), cutoff = 0.1)
+mesh3 = inla.mesh.2d(loc.domain = dom_tok, cpue_mako_lonlat, max.edge = c(0.2, 0.2), cutoff = 0.1)
 plot(mesh3)
-mesh4 = inla.mesh.2d(loc.domain = dom_tok2, cpue_mako_lonlat2, max.edge = c(0.2, 0.2), cutoff = 0.1, offset = c(0.5, 0.3))
+mesh4 = inla.mesh.2d(loc.domain = dom_tok, cpue_mako_lonlat, max.edge = c(0.2, 0.2), cutoff = 0.1, offset = c(0.5, 0.3))
 plot(mesh4)
-mesh5 = inla.mesh.2d(loc.domain = dom_tok2, cpue_mako_lonlat2, max.edge = c(1, 1), cutoff = 0.5, offset = c(0.3, 0.2))
+mesh5 = inla.mesh.2d(loc.domain = dom_tok, cpue_mako_lonlat, max.edge = c(1, 1), cutoff = 0.5, offset = c(0.3, 0.2))
 plot(mesh5)
-mesh6 = inla.mesh.2d(loc.domain = dom_tok2, cpue_mako_lonlat2, max.edge = c(0.5, 0.5), cutoff = 0.3, offset = c(0.6, 0.6))
+mesh6 = inla.mesh.2d(loc.domain = dom_tok, cpue_mako_lonlat, max.edge = c(0.5, 0.5), cutoff = 0.3, offset = c(0.6, 0.6))
 plot(mesh6)
-mesh7 = inla.mesh.2d(loc.domain = dom_tok2, cpue_mako_lonlat2, max.edge = c(0.8, 0.8), cutoff = 0.4, offset = c(0.8, 0.8))
+mesh7 = inla.mesh.2d(loc.domain = dom_tok, cpue_mako_lonlat, max.edge = c(0.8, 0.8), cutoff = 0.4, offset = c(0.8, 0.8))
 plot(mesh7)
-mesh8 = inla.mesh.2d(loc.domain = dom_tok2, cpue_mako_lonlat2, max.edge = c(0.05, 0.05), cutoff = 0.2, offset = c(0.8, 0.05))
-plot(mesh8)
+mesh8 = inla.mesh.2d(loc.domain = dom_tok, cpue_mako_lonlat, max.edge = c(0.05, 0.05), cutoff = 0.2, offset = c(0.8, 0.05))
+plot(mesh8, asp=1, main = "")
 
-mesh9 <- inla.mesh.2d(boundary = dom_tok2,
-                      max.edge = c(0.05, 0.05), 
-                      cutoff = 0.2, 
-                      offset = c(0.8, 0.05))
+
+mesh9 = inla.mesh.2d(cpue_mako_lonlat, max.edge = c(0.01, 0.01), cutoff = 0.005, offset = c(0.05, 0.05))
 plot(mesh9)
+
+
+
+points(cpue_mako_lonlat, col = "red", pch = 16, cex = .5)
+mesh8$n
+
+# mesh9 <- inla.mesh.2d(boundary = dom_tok2,
+#                       max.edge = c(0.05, 0.05), 
+#                       cutoff = 0.2, 
+#                       offset = c(0.8, 0.05))
+# plot(mesh9)
+
+
 
 ## PC-priorでrangeとmarginal varianceの範囲がどれくらいか分からない
 cpue_spde = inla.spde2.pcmatern(mesh = mesh8, alpha = 2, prior.range = c(0.01, 0.05), prior.sigma = c(1, 0.01))
