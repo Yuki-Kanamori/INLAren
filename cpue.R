@@ -5,6 +5,7 @@ setwd("/Users/Yuki/Dropbox/Network2020")
 data = read.csv("VASTdata.csv")
 head(data, 2)
 mako = data %>% filter(FISH == "makogarei", Y == 2018)
+summary(mako)
 
 dom_tok = cbind(c(139.7, 139.5, 139.7, 140.1, 140.3, 139.9), # x-axis 
                 c(35.2,  35.4,  35.8,  35.8,  35.4,  35.2)) # matrix data
@@ -27,7 +28,7 @@ cpue_mako_lonlat = as.matrix(cbind(mako$Lon, mako$Lat)) # matrix data
 
 mesh1 = inla.mesh.2d(cpue_mako_lonlat, max.edge = c(0.2, 0.2))
 plot(mesh1)
-mesh2 = inla.mesh.2d(cpue_mako_lonlat, max.edge = c(0.2, 0.2), cutoff = 0.1)
+mesh2 = inla.mesh.2d(cpue_mako_lonlat, max.edge = c(1, 1), cutoff = 0.6)
 plot(mesh2)
 mesh3 = inla.mesh.2d(loc.domain = dom_tok, cpue_mako_lonlat, max.edge = c(0.2, 0.2), cutoff = 0.1)
 plot(mesh3)
@@ -42,14 +43,25 @@ plot(mesh7)
 mesh8 = inla.mesh.2d(loc.domain = dom_tok, cpue_mako_lonlat, max.edge = c(0.05, 0.05), cutoff = 0.2, offset = c(0.8, 0.05))
 plot(mesh8, asp=1, main = "")
 
+# 暴走する
+# mesh9 = inla.mesh.2d(cpue_mako_lonlat, max.edge = c(0.01, 0.01), cutoff = 0.005, offset = c(0.05, 0.05))
+# plot(mesh9)
 
-mesh9 = inla.mesh.2d(cpue_mako_lonlat, max.edge = c(0.01, 0.01), cutoff = 0.005, offset = c(0.05, 0.05))
+bound9 = inla.nonconvex.hull(cpue_mako_lonlat)
+mesh9 = inla.mesh.2d(boundary = bound9, max.edge = c(0.5, 0.5))
 plot(mesh9)
-
-
-
 points(cpue_mako_lonlat, col = "red", pch = 16, cex = .5)
-mesh8$n
+
+
+bound10 = inla.nonconvex.hull(cpue_mako_lonlat, convex = 0.05, concave = -0.15)
+mesh10 = inla.mesh.2d(boundary = bound10, max.edge = c(0.08, 0.08), cutoff = 0.02)
+plot(mesh10)
+points(cpue_mako_lonlat, col = "red", pch = 16, cex = .5)
+
+
+
+
+
 
 # mesh9 <- inla.mesh.2d(boundary = dom_tok2,
 #                       max.edge = c(0.05, 0.05), 
