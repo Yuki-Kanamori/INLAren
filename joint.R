@@ -91,9 +91,30 @@ formula = y ~ 0 + eb.0 + cb.0 + f(i.e, model = spde) + f(x, model = spde) + f(i.
 # fitting the joint model
 res_joint = inla(formula, data = inla.stack.data(stk), family = c("binomial", "binomial"), control.predictor = list(compute = TRUE, A = inla.stack.A(stk)))
 
-# outputs
-mesh2locs = rbind(e_A, c_A)
-m.mprd = drop(mesh2locs%*%res$summary.random$m$mean) #error
-sd.mprd = drop(mesh2locs%*%res$summary.ran$m$sd) #error
 
-res_joint$summary.fixed
+
+# outputs -------------------------------------------------------
+summary(res_joint)
+# fixed effects
+res_joint$summary.fix # intercepts
+
+# ???
+post.se <- inla.tmarginal(function(x) sqrt(1/x), res_joint$marginals.hy[[1]])
+inla.emarginal(function(x) x, post.se)
+inla.hpdmarginal(0.95, post.se)
+data.inla.field <- inla.spde2.result(res_joint, "i.e", spde, do.transf = TRUE)
+inla.emarginal(function(x) x, data.inla.field$marginals.kappa[[1]])
+inla.emarginal(function(x) x, data.inla.field$marginals.variance.nominal[[1]])
+
+
+# prediction ----------------------------------------------------
+summary(loc)
+# dom_tok = cbind(c(139.7, 139.5, 139.7, 140.1, 140.3, 139.9), # x-axis 
+#                 c(35.2,  35.4,  35.8,  35.8,  35.4,  35.2)) # matrix data
+coords.grid <- as.matrix(expand.grid(long = seq(139.5, 140.5, len = 100), lat = seq(35, 36, len = 100)))
+head(coords.grid)
+data.inla.projector <- inla.mesh.projector(mesh2, loc = loc)
+newdata <- data.frame(loc, mean = inla.mesh.project(data.inla.projector, res_joint$summary.random$i.e$mean + res_joint$summary.random$x$mean + res_joint$summary.random$i.c$mean) + res_joint$summary.fixed$mean[1])
+str(newdata$mean)
+ggplot(newdata, aes(y = X2, x = X1)) + geom_tile(aes(fill = mean))
+ggplot(loc, aes(y = V1, x = V2)) + geom_point(aes(color = y), size = 2)
