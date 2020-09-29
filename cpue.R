@@ -112,6 +112,9 @@ stack_cpue = inla.stack(
   tag = "mako_cpue"
 )
 
+eq = cpue ~ 0 + m + f(i, model = spde)
+
+test = inla(eq, data = inla.stack.data(stack_cpue), control.predictor = list(A = inla.stack.A(stack_cpue), compute = TRUE))
 
 
 # spatio-temporal model -----------------------------------------
@@ -130,7 +133,7 @@ mako$w = factor(mako$time)
 table(mako$w)
 class(mako$w)
 
-# lonlat data (matrix)
+# lonlat data
 cpue_mako_lonlat = as.matrix(cbind(mako$Lon, mako$Lat))
 
 # time step
@@ -181,6 +184,15 @@ res = inla(formulae,
            control.predictor = list(compute = TRUE, A = inla.stack.A(sdat)),
            control.family = list(hyper = list(theta = prec.prior)),
            control.fixed = list(expand.factor.strategy = "inla"))
-table()
 
 
+stack_cpue = inla.stack(
+  data = list(cpue = mako$CPUE),
+  A = list(A_cpue_mako, 1),
+  effects = list(i = iset, #spatial random effect
+                 w = mako$w), #intercept?
+  tag = "mako_cpue"
+)
+
+eq = cpue ~ 0 + w + f(i, model = spde)
+test = inla(eq, data = inla.stack.data(stack_cpue), control.predictor = list(A = inla.stack.A(stack_cpue), compute = TRUE))
