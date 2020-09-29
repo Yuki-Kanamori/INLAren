@@ -4,7 +4,9 @@ require(tidyverse)
 setwd("/Users/Yuki/Dropbox/Network2020")
 data = read.csv("VASTdata.csv")
 head(data, 2)
+# mako = data #データ数が多くてmesh作ってプロットするのに時間がかかる
 mako = data %>% filter(FISH == "makogarei", Y == 2018)
+
 summary(mako)
 
 dom_tok = cbind(c(139.7, 139.5, 139.7, 140.1, 140.3, 139.9), # x-axis 
@@ -66,6 +68,7 @@ mesh10$n
 # ポイント3: いびつな形のメッシュがない（cutoffを使って整える）
 # maxedgeは適当（0.08, 0.05, 0.03あたりはどんどんメッシュが細かくなりつつ綺麗な三角形を保っていた．0.02は重くて動かない．バックでfmesherが暴走する）
 # cutoffはmaxedgeの1/5に
+# 2018年だけでなく全てのデータを使う時には，mesh11の条件を少し帰る必要がある（いびつな三角形が含まれるため）
 bound11 = inla.nonconvex.hull(cpue_mako_lonlat, convex = 0.05, concave = -0.15)
 mesh11 = inla.mesh.2d(boundary = bound11, max.edge = c(0.03, 0.03), cutoff = 0.08/5)
 plot(mesh11)
@@ -91,7 +94,7 @@ table(rowSums(A_cpue_mako))
 table(colSums(A_cpue_mako) > 0)
 # table(as.numeric(A_cpue_mako))
 
-i_index = inla.spde.make.index("i", n.spde = cpue_spde$n.spde)
+i_index = inla.spde.make.index("i", n.spde = cpue_spde$n.spde, n.group = 1)
 
 # stack_cpue = inla.stack(
 #   data = mako$CPUE,
@@ -102,7 +105,7 @@ i_index = inla.spde.make.index("i", n.spde = cpue_spde$n.spde)
 # )
 
 stack_cpue = inla.stack(
-  data = mako$CPUE,
+  data = list(cpue = mako$CPUE),
   A = list(A_cpue_mako, 1),
   effects = list(i = i_index, #spatial random effect
                  m = rep(1, nrow(mako))), #intercept?
