@@ -112,3 +112,75 @@ stack_cpue = inla.stack(
   tag = "mako_cpue"
 )
 
+
+
+# spatio-temporal model -----------------------------------------
+# year for fixed effect and spatio-temporal for random e --------
+require(INLA)
+require(tidyverse)
+
+setwd("/Users/Yuki/Dropbox/Network2020")
+data = read.csv("VASTdata.csv")
+head(data, 2)
+# mako = data #データ数が多くてmesh作ってプロットするのに時間がかかる
+mako = data %>% filter(FISH == "makogarei", between(Y, 2015, 2018)) %>% arrange(Y)
+summary(mako)
+mako$time = mako$Y-2014
+mako$w = factor(mako$time)
+table(mako$w)
+class(mako$w)
+
+# lonlat data (matrix)
+cpue_mako_lonlat = as.matrix(cbind(mako$Lon, mako$Lat))
+
+# time step
+# k = length(unique(mako$Y))
+k = 4
+
+# make a mesh based on a criteria written by Bakka
+# maxedgeを0.03にすると重くて動かない
+bound11 = inla.nonconvex.hull(cpue_mako_lonlat, convex = 0.05, concave = -0.15)
+mesh11 = inla.mesh.2d(boundary = bound11, max.edge = c(0.04, 0.04), cutoff = 0.08/5)
+plot(mesh11)
+points(cpue_mako_lonlat, col = "red", pch = 16, cex = .5)
+mesh11$n #529
+
+# spde
+cpue_spde = inla.spde2.pcmatern(mesh = mesh11, alpha = 2, prior.range = c(0.01, 0.05), prior.sigma = c(1, 0.01))
+
+# index
+# n.spde = mesh$n*time = 529*4 = 2116 ??
+iset = inla.spde.make.index("i", n.spde = cpue_spde$n.spde, n.group = k)
+
+# projection matrix
+A_cpue_mako = inla.spde.make.A(mesh11, loc = cbind(mako$Lon, mako$Lat), group = mako$time)
+dim(A_cpue_mako) # of data times # of vertices in the mesh
+table(rowSums(A_cpue_mako > 0))
+table(rowSums(A_cpue_mako))
+table(colSums(A_cpue_mako) > 0)
+
+# stack
+sdat = inla.stack(
+  data = list(y = mako$CPUE),
+  A = list(A_cpue_mako, 1),
+  effects = list(iset, w = mako$w),
+  tag = "stdata"
+)
+
+# AR1
+h.spec = list(theta = list(prior = "pccor1", param = c(0, 0.9)))
+
+# foluma
+formulae = y ~ 0 + w + f(i, model = spde, group = i.group, 
+                         control.group = list(model = 'ar1', hyper = h.spec))
+prec.prior = list(prior = "pc.prec", param = c(1, 0.01))
+
+# fitting
+res = inla(formulae, 
+           data = inla.stack.data(sdat), 
+           control.predictor = list(compute = TRUE, A = inla.stack.A(sdat)),
+           control.family = list(hyper = list(theta = prec.prior)),
+           control.fixed = list(expand.factor.strategy = "inla"))
+table()
+
+
