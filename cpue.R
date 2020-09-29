@@ -57,11 +57,20 @@ bound10 = inla.nonconvex.hull(cpue_mako_lonlat, convex = 0.05, concave = -0.15)
 mesh10 = inla.mesh.2d(boundary = bound10, max.edge = c(0.08, 0.08), cutoff = 0.02)
 plot(mesh10)
 points(cpue_mako_lonlat, col = "red", pch = 16, cex = .5)
+mesh10$n
 
 
-
-
-
+# https://haakonbakkagit.github.io/btopic104.htmlの基準を参考に作ってみる
+# ポイント1: 境界を1層以上作る
+# ポイント2: maxrangeはrange（空間相関の範囲）の1/5以下に（でも空間相関の範囲は解析前に分からないので，サイトではstudy areaの1/3を使っていた）
+# ポイント3: いびつな形のメッシュがない（cutoffを使って整える）
+# maxedgeは適当（0.08, 0.05, 0.03あたりはどんどんメッシュが細かくなりつつ綺麗な三角形を保っていた．0.02は重くて動かない．バックでfmesherが暴走する）
+# cutoffはmaxedgeの1/5に
+bound11 = inla.nonconvex.hull(cpue_mako_lonlat, convex = 0.05, concave = -0.15)
+mesh11 = inla.mesh.2d(boundary = bound11, max.edge = c(0.03, 0.03), cutoff = 0.08/5)
+plot(mesh11)
+points(cpue_mako_lonlat, col = "red", pch = 16, cex = .5)
+mesh11$n
 
 # mesh9 <- inla.mesh.2d(boundary = dom_tok2,
 #                       max.edge = c(0.05, 0.05), 
@@ -72,11 +81,11 @@ points(cpue_mako_lonlat, col = "red", pch = 16, cex = .5)
 
 
 ## PC-priorでrangeとmarginal varianceの範囲がどれくらいか分からない
-cpue_spde = inla.spde2.pcmatern(mesh = mesh8, alpha = 2, prior.range = c(0.01, 0.05), prior.sigma = c(1, 0.01))
+cpue_spde = inla.spde2.pcmatern(mesh = mesh11, alpha = 2, prior.range = c(0.01, 0.05), prior.sigma = c(1, 0.01))
 
-A_cpue_mako = inla.spde.make.A(mesh8, loc = cpue_mako_lonlat)
+A_cpue_mako = inla.spde.make.A(mesh11, loc = cpue_mako_lonlat)
 
-dim(A_cpue_mako) #199, 35; # of data times # of vertices in the mesh
+dim(A_cpue_mako) # of data times # of vertices in the mesh
 table(rowSums(A_cpue_mako > 0))
 table(rowSums(A_cpue_mako))
 table(colSums(A_cpue_mako) > 0)
