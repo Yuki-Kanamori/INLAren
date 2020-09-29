@@ -95,3 +95,5 @@ res_joint = inla(formula, data = inla.stack.data(stk), family = c("binomial", "b
 mesh2locs = rbind(e_A, c_A)
 m.mprd = drop(mesh2locs%*%res$summary.random$m$mean) #error
 sd.mprd = drop(mesh2locs%*%res$summary.ran$m$sd) #error
+
+res_joint$summary.fixed
