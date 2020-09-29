@@ -174,7 +174,7 @@ sdat = inla.stack(
 h.spec = list(theta = list(prior = "pccor1", param = c(0, 0.9)))
 
 # foluma
-formulae = y ~ 0 + w + f(i, model = spde, group = i.group, 
+formulae = y ~ 0 + w + f(i, model = cpue_spde, group = i.group, 
                          control.group = list(model = 'ar1', hyper = h.spec))
 prec.prior = list(prior = "pc.prec", param = c(1, 0.01))
 
