@@ -73,7 +73,7 @@ bound11 = inla.nonconvex.hull(cpue_mako_lonlat, convex = 0.05, concave = -0.15)
 mesh11 = inla.mesh.2d(boundary = bound11, max.edge = c(0.03, 0.03), cutoff = 0.08/5)
 plot(mesh11)
 points(cpue_mako_lonlat, col = "red", pch = 16, cex = .5)
-mesh11$n
+mesh11$n #768
 
 # mesh9 <- inla.mesh.2d(boundary = dom_tok2,
 #                       max.edge = c(0.05, 0.05), 
