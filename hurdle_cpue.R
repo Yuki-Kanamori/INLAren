@@ -64,3 +64,7 @@ stk_zy = inla.stack(stk_z, stk_y)
 # fitting the hurdle model
 res_h = inla(y ~ 0 + z.b0 + y.b0 + f(i.z, model = cpue_spde) + f(i.y, copy = "i.z", fixed = FALSE), family = c("binomial", "gaussian"), data = inla.stack.data(stk_zy), control.compute = list(dic = TRUE), control.predictor = list(A = inla.stack.A(stk_zy), compute = TRUE))
 
+# outputs
+res_h$summary.fixed
+res_h$summary.hyperpar[1, ]
+
