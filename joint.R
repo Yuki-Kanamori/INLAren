@@ -118,3 +118,8 @@ newdata <- data.frame(loc, mean = inla.mesh.project(data.inla.projector, res_joi
 str(newdata$mean)
 ggplot(newdata, aes(y = X2, x = X1)) + geom_tile(aes(fill = mean))
 ggplot(loc, aes(y = V1, x = V2)) + geom_point(aes(color = y), size = 2)
+
+
+p_test = inla.mesh.projector(mesh2, xlim = 139.5:140.5, ylim = 35:36)
+pred_mean = inla.mesh.project(p_test, res_joint$summary.random$i.e$mean)
+plot(pred_mean)
