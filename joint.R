@@ -89,8 +89,20 @@ stk = inla.stack(e_stk, c_stk)
 formula = y ~ 0 + eb.0 + cb.0 + f(i.e, model = spde) + f(x, model = spde) + f(i.c, copy = "i.e", fixed = FALSE)
 
 # fitting the joint model
-res_joint = inla(formula, data = inla.stack.data(stk), family = c("binomial", "binomial"), control.predictor = list(compute = TRUE, A = inla.stack.A(stk)))
+# res_joint = inla(formula, data = inla.stack.data(stk), family = c("binomial", "binomial"), control.predictor = list(compute = TRUE, A = inla.stack.A(stk)))
 
+# not estimate the posterior marginal distribution
+res_joint = inla(formula, data = inla.stack.data(stk), family = c("binomial", "binomial"), control.predictor = list(compute = TRUE, A = inla.stack.A(stk)), control.results = list(return.marginals.random = FALSE, return.marginals.predictor = FALSE))
+
+# prediction
+lon = rep(seq(139.5, 140.5, 0.2), 6)
+lat = rep(seq(35, 36, 0.2), each = 6)
+pred_loc = cbind(lon, lat)
+
+pred_A = inla.spde.make.A(mesh2, loc = pred_loc)
+
+stk_p = inla.stack(data = list(resp = NA),
+                   A = list(pred_A, ))
 
 
 # outputs -------------------------------------------------------
@@ -123,3 +135,6 @@ ggplot(loc, aes(y = V1, x = V2)) + geom_point(aes(color = y), size = 2)
 p_test = inla.mesh.projector(mesh2, xlim = 139.5:140.5, ylim = 35:36)
 pred_mean = inla.mesh.project(p_test, res_joint$summary.random$i.e$mean)
 plot(pred_mean)
+
+
+
