@@ -125,17 +125,50 @@ summary(loc)
 #                 c(35.2,  35.4,  35.8,  35.8,  35.4,  35.2)) # matrix data
 coords.grid <- as.matrix(expand.grid(long = seq(139.5, 140.5, len = 100), lat = seq(35, 36, len = 100)))
 head(coords.grid)
-data.inla.projector <- inla.mesh.projector(mesh2, loc = loc)
+# data.inla.projector <- inla.mesh.projector(mesh2, loc = loc)
+data.inla.projector <- inla.mesh.projector(mesh2, loc = coords.grid)
+book.plot.field(field = ((res_joint$summary.random$i.e$mean + res_joint$summary.random$x$mean + res_joint$summary.random$i.c$mean) + res_joint$summary.fixed$mean[1]), projector = coords.grid)
+
+#?
 newdata <- data.frame(loc, mean = inla.mesh.project(data.inla.projector, res_joint$summary.random$i.e$mean + res_joint$summary.random$x$mean + res_joint$summary.random$i.c$mean) + res_joint$summary.fixed$mean[1])
 str(newdata$mean)
-ggplot(newdata, aes(y = X2, x = X1)) + geom_tile(aes(fill = mean))
-ggplot(loc, aes(y = V1, x = V2)) + geom_point(aes(color = y), size = 2)
+
+# ggplot(newdata, aes(y = X2, x = X1)) + geom_tile(aes(fill = mean))
+# ggplot(loc, aes(y = V1, x = V2)) + geom_point(aes(color = y), size = 2)
+
+summary(newdata)
+g = ggplot(data = newdata, aes(x = X1, y = X2), color = mean)
+p = geom_point()
+g+p
 
 
 p_test = inla.mesh.projector(mesh2, xlim = 139.5:140.5, ylim = 35:36)
 pred_mean = inla.mesh.project(p_test, res_joint$summary.random$i.e$mean)
 plot(pred_mean)
 
+
+
+# from Dina -----------------------------------------------------
+ggplot() +  geom_point(data = data.frame(loc), aes(x = X1, y = X2, color = res_joint$summary.random$i.c$mean), size=1.5) + theme(text=element_text(size=5),axis.text.x=element_text(size=5),axis.text.y=element_text(size=5), panel.background=element_rect(fill="light grey"),panel.grid.minor=element_blank(),panel.grid.major=element_blank())+ scale_color_gradient2("",low="blue", high="red")
+# ggplot() +  geom_point(data = data0, aes(x = Lon, y = Lat, color = res_joint$summary.random$i.c$mean), size=1.5) + coord_cartesian(xlim = c(-10, 10), ylim = c(48, 62))  + theme(text=element_text(size=5),axis.text.x=element_text(size=5),axis.text.y=element_text(size=5), panel.background=element_rect(fill="light grey"),panel.grid.minor=element_blank(),panel.grid.major=element_blank())+ scale_color_gradient2("",low="blue", high="red")
+
+test = data.frame(as.matrix(e_A))
+test = test %>% mutate(data = 1:nrow(test))
+ncol(test)
+test2 = test %>% gather(key = projector, value = sparse, 1:(ncol(test)-1))
+test3 = test2 %>% filter(sparse > 0)
+
+
+
+# 何か描けた ---------------------------------------------------------
+source("/Users/Yuki/FRA/INLAren/spde-book-files/R/spde-book-functions.R")
+prj = inla.mesh.projector(mesh2, xlim = c(min(loc[,1]), max(loc[,1])), ylim = c(min(loc[,2]), max(loc[,2])))
+book.plot.field(field = res_joint$summary.random$i.e$mean, projector = prj)
+book.plot.field(field = res_joint$summary.random$i.e$sd, projector = prj)
+book.plot.field(field = res_joint$summary.random$i.c$mean, projector = prj)
+book.plot.field(field = res_joint$summary.random$i.c$sd, projector = prj)
+book.plot.field(field = res_joint$summary.random$x$mean, projector = prj)
+book.plot.field(field = res_joint$summary.random$x$sd, projector = prj)
 
 
 
