@@ -70,6 +70,59 @@ table(rowSums(c_A > 0))
 table(rowSums(c_A))
 table(colSums(c_A) > 0)
 
+
+# for prediction ------------------------------------------------
+setwd('/Users/Yuki/FRA/INLAren/spde-book-files')
+
+## ----opts, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE----
+source('R/initial_setup.R')
+opts_chunk$set(
+  fig.path = 'figs/barrier-'
+)
+library(scales)
+library(rgeos)
+## High resolution maps when using map()
+library(mapdata) 
+## Map features, map2SpatialPolygons()
+library(maptools)
+
+
+# Tokyo Bay ---------------------------------------------------------------
+# Select region 
+map <- map("world", "Japan", fill = TRUE,
+           col = "transparent", plot = TRUE)
+IDs <- sapply(strsplit(map$names, ":"), function(x) x[1])
+map.sp <- map2SpatialPolygons(
+  map, IDs = IDs,
+  proj4string = CRS("+proj=longlat +datum=WGS84")) #緯度経度データ
+summary(map.sp)
+
+# make a polygon ------------------------------------------------------------
+pl.sel <- SpatialPolygons(list(Polygons(list(Polygon(
+  cbind(c(139.7, 139.5, 139.7, 140.1, 140.3, 139.9), # x-axis 
+        c(35.2,  35.4,  35.8,  35.8,  35.4,  35.2)), # y-axis
+  FALSE)), '0')), proj4string = CRS(proj4string(map.sp))) #緯度経度データ
+summary(pl.sel)
+poly.water <- gDifference(pl.sel, map.sp)
+plot(pl.sel)
+plot(map.sp)
+plot(poly.water)
+
+tok_bor = poly.water@polygons[[1]]@Polygons[[1]]@coords
+
+bb_tok = poly.water@bbox
+x = seq(bb_tok[1, "min"] - 1, bb_tok[1, "max"] + 1, length.out = 150)
+y = seq(bb_tok[2, "min"] - 1, bb_tok[2, "max"] + 1, length.out = 150)
+coop = as.matrix(expand.grid(x, y))
+ind = point.in.polygon(coop[, 1], coop[, 2],
+                       tok_bor[, 1], tok_bor[, 2])
+coop = coop[which(ind == 1), ]
+plot(coop, asp = 1)
+
+Ap = inla.spde.make.A(mesh = mesh2, loc = coop)
+dim(Ap)
+
+
 # spde
 spde = inla.spde2.pcmatern(mesh = mesh2, alpha = 2, prior.range = c(0.01, 0.05), prior.sigma = c(1, 0.01))
 
