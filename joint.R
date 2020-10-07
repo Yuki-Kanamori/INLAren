@@ -129,18 +129,19 @@ head(coords.grid)
 data.inla.projector <- inla.mesh.projector(mesh2, loc = coords.grid)
 book.plot.field(field = ((res_joint$summary.random$i.e$mean + res_joint$summary.random$x$mean + res_joint$summary.random$i.c$mean) + res_joint$summary.fixed$mean[1]), projector = coords.grid)
 
+
+index = inla.stack.index()
+
+
+
+
+
 #?
 newdata <- data.frame(loc, mean = inla.mesh.project(data.inla.projector, res_joint$summary.random$i.e$mean + res_joint$summary.random$x$mean + res_joint$summary.random$i.c$mean) + res_joint$summary.fixed$mean[1])
 str(newdata$mean)
 
 # ggplot(newdata, aes(y = X2, x = X1)) + geom_tile(aes(fill = mean))
 # ggplot(loc, aes(y = V1, x = V2)) + geom_point(aes(color = y), size = 2)
-
-summary(newdata)
-g = ggplot(data = newdata, aes(x = X1, y = X2), color = mean)
-p = geom_point()
-g+p
-
 
 p_test = inla.mesh.projector(mesh2, xlim = 139.5:140.5, ylim = 35:36)
 pred_mean = inla.mesh.project(p_test, res_joint$summary.random$i.e$mean)
