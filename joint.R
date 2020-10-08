@@ -160,16 +160,54 @@ formula = y ~ 0 + eb.0 + cb.0 + f(i.e, model = spde) + f(x, model = spde) + f(i.
 # not estimate the posterior marginal distribution
 res_joint = inla(formula, data = inla.stack.data(stk), family = c("binomial", "binomial"), control.predictor = list(compute = TRUE, A = inla.stack.A(stk)), control.results = list(return.marginals.random = FALSE, return.marginals.predictor = FALSE))
 
-# prediction
-lon = rep(seq(139.5, 140.5, 0.2), 6)
-lat = rep(seq(35, 36, 0.2), each = 6)
-pred_loc = cbind(lon, lat)
 
-pred_A = inla.spde.make.A(mesh2, loc = pred_loc)
 
-stk_p = inla.stack(data = list(resp = NA),
-                   A = list(pred_A, ))
+# plot the fitted values on a map -------------------------------
+index_ep = inla.stack.index(stk, tag = "ep_dat")$data
+index_cp = inla.stack.index(stk, tag = "cp_dat")$data
 
+pred_mean_e = res_joint$summary.fitted.values[index_ep, "mean"]
+pred_mean_c = res_joint$summary.fitted.values[index_cp, "mean"]
+pred_ll_e = res_joint$summary.fitted.values[index_ep, "0.025quant"]
+pred_ul_e = res_joint$summary.fitted.values[index_ep, "0.975quant"]
+pred_ll_c = res_joint$summary.fitted.values[index_cp, "0.025quant"]
+pred_ul_c = res_joint$summary.fitted.values[index_cp, "0.975quant"]
+
+# test1 = data.frame(east = coop[, 1], north = coop[, 2],
+#                    value = pred_mean_e, variable = "pred_mean_eDNA")
+# test2 = data.frame(east = coop[, 1], north = coop[, 2],
+#                    value = pred_ll_e, variable = "pred_ll_eDNA")
+# test3 = data.frame(east = coop[, 1], north = coop[, 2],
+#                    value = pred_ul_e, variable = "pred_ul_eDNA")
+# colnames(test1)
+# colnames(test2)
+# colnames(test3)
+# dpm_e = rbind(test1, test2, test3)
+
+dpm_e = rbind(data.frame(east = coop[, 1], north = coop[, 2],
+                         value = pred_mean_e, variable = "pred_mean_eDNA"),
+              data.frame(east = coop[, 1], north = coop[, 2],
+                         value = pred_ll_e, variable = "pred_ll_eDNA"),
+              data.frame(east = coop[, 1], north = coop[, 2],
+                         value = pred_ul_e, variable = "pred_ul_eDNA"))
+dpm_c = rbind(data.frame(east = coop[, 1], north = coop[, 2],
+                         value = pred_mean_c, variable = "pred_mean_catch"),
+              data.frame(east = coop[, 1], north = coop[, 2],
+                         value = pred_ll_c, variable = "pred_ll_catch"),
+              data.frame(east = coop[, 1], north = coop[, 2],
+                         value = pred_ul_c, variable = "pred_ul_catch"))
+
+dpm_e$variable = as.factor(dpm_e$variable)
+dpm_c$variable = as.factor(dpm_c$variable)
+
+g1 = ggplot(data = dpm_e, aes(east, north, fill = value))
+g2 = ggplot(data = dpm_c, aes(east, north, fill = value))
+t = geom_tile()
+f = facet_wrap(~ variable)
+c = coord_fixed(ratio = 1)
+s = scale_fill_gradient(name = "encounter probability", low = "blue", high = "orange")
+g1+t+f+c+s+theme_bw()
+g2+t+f+c+s+theme_bw()
 
 # outputs -------------------------------------------------------
 summary(res_joint)
