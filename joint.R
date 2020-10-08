@@ -209,6 +209,51 @@ s = scale_fill_gradient(name = "encounter probability", low = "blue", high = "or
 g1+t+f+c+s+theme_bw()
 g2+t+f+c+s+theme_bw()
 
+
+
+# projecting the spatial field ----------------------------------
+range_e = apply(mesh2$loc[, c(1, 2)], 2, range)
+# range_e = apply(coop, 2, range)
+proj_e = inla.mesh.projector(mesh2, xlim = range_e[, 1], ylim = range_e[, 2], dims = c(50, 50))
+mean_s_ie = inla.mesh.project(proj_e, res_joint$summary.random$i.e$mean)
+sd_s_ie = inla.mesh.project(proj_e, res_joint$summary.random$i.e$sd)
+
+df_e = expand.grid(x = proj_e$x, y = proj_e$y)
+df_e$mean_s = as.vector(mean_s_ie)
+df_e$sd_s = as.vector(sd_s_ie)
+
+require(viridis)
+require(cowplot)
+
+g = ggplot(df_e, aes(x = x, y = y, fill = mean_s_ie))
+r = geom_raster()
+v = scale_fill_viridis(na.value = "transparent")
+c = coord_fixed(ratio = 1)
+g+r+v+c+theme_bw()
+
+# with map
+world_map <- map_data("world")
+jap <- subset(world_map, world_map$region == "Japan")
+jap_cog <- jap[jap$lat > 35 & jap$lat < 38 & jap$long > 139 & jap$long < 141, ]
+pol = geom_polygon(data = jap_cog, aes(x=long, y=lat, group=group), colour="gray 50", fill="gray 50")
+c_map = coord_map(xlim = c(139.5, 140.3), ylim = c(35, 35.75))
+g1 = ggplot(df_e, aes(x = x, y = y, fill = mean_s_ie))
+g2 = ggplot(df_e, aes(x = x, y = y, fill = sd_s_ie))
+# r = geom_raster()
+t = geom_tile()
+v = scale_fill_viridis(na.value = "transparent")
+c = coord_fixed(ratio = 1)
+labs1 = labs(x = "Longitude", y = "Latitude", title = "Mean")
+labs2 = labs(x = "Longitude", y = "Latitude", title = "SD")
+g1+t+v+c+pol+c_map+labs1+theme_bw()
+g2+t+v+c+pol+c_map+labs2+theme_bw()
+
+
+
+
+
+
+
 # outputs -------------------------------------------------------
 summary(res_joint)
 # fixed effects
