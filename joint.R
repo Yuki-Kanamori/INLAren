@@ -54,7 +54,7 @@ loc = rbind(e_loc, c_loc)
 bound2 = inla.nonconvex.hull(loc, convex = 0.05, concave = -0.15)
 mesh2 = inla.mesh.2d(boundary = bound2, max.edge = c(0.04, 0.04), cutoff = 0.08/5)
 plot(mesh2)
-points(c_loc, col = "red", pch = 16, cex = .5)
+points(c_loc, col = "red", pch = 16, cex = .5) #pdfにする時はcex = 1にする
 points(e_loc, col = "green", pch = 16, cex = .5)
 mesh2$n #618
 
