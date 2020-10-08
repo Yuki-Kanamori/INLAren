@@ -66,11 +66,12 @@ cdf = read.csv("/Users/Yuki/Dropbox/eDNA_INLA/added_data2019_2.csv")
 e_ana = edf_b %>% filter(sp_j == "maanago")
 summary(e_ana)
 edna = (e_ana$leads > 0) + 0
+summary(edna)
 
 c_ana = cdf %>% filter(sp == "maanago")
 summary(c_ana)
 catch = (c_ana$catch > 0) + 0
-
+summary(catch) #1しかない！
 
 
 # INLA ----------------------------------------------------------
@@ -260,3 +261,16 @@ labs1 = labs(x = "Longitude", y = "Latitude", title = "Mean")
 labs2 = labs(x = "Longitude", y = "Latitude", title = "SD")
 g1+t+v+c+pol+c_map+labs1+theme_bw()
 g2+t+v+c+pol+c_map+labs2+theme_bw()
+
+
+
+# マコガレイ ---------------------------------------------------------
+e_fish = edf_b %>% filter(sp_j == "makogarei")
+summary(e_fish)
+edna = (e_fish$leads > 0) + 0
+summary(edna)
+
+c_fish = cdf %>% filter(sp == "makogarei")
+summary(c_fish)
+catch = (c_fish$catch > 0) + 0
+summary(catch) #1しかない！
