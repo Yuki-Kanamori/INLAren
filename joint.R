@@ -120,23 +120,36 @@ coop = coop[which(ind == 1), ]
 plot(coop, asp = 1)
 
 Ap = inla.spde.make.A(mesh = mesh2, loc = coop)
-dim(Ap)
+dim(Ap) #398, 618
 
 
 # spde
 spde = inla.spde2.pcmatern(mesh = mesh2, alpha = 2, prior.range = c(0.01, 0.05), prior.sigma = c(1, 0.01))
 
 # stack for eDNA
+# e_index = inla.spde.make.index("i.e", spde$n.spde)
 e_stk = inla.stack(data = list(y = cbind(edna, NA)),
                    A = list(e_A, 1),
                    effects = list(i.e = 1:mesh2$n, eb.0 = rep(1, length(edna))),
                    tag = "e_dat")
+na = as.matrix(cbind(rep(NA, nrow(coop)), rep(NA, nrow(coop))))
+ep_stk = inla.stack(data = list(y = cbind(na[, 1], na[, 2])),
+                   A = list(Ap, 1),
+                   effects = list(i.e = 1:mesh2$n, eb.0 = rep(1, nrow(coop))),
+                   tag = "ep_dat")
+stk_edna = inla.stack(e_stk, ep_stk)
+
 c_stk = inla.stack(data = list(y = cbind(NA, catch)),
                    A = list(c_A, 1),
                    effects = list(list(i.c = 1:mesh2$n, x = 1:mesh2$n), cb.0 = rep(1, length(catch))),
                    tag = "c_dat")
-
-stk = inla.stack(e_stk, c_stk)
+cp_stk = inla.stack(data = list(y = cbind(na[, 1], na[, 2])),
+                   A = list(c_A, 1),
+                   effects = list(list(i.c = 1:mesh2$n, x = 1:mesh2$n), cb.0 = rep(1, nrow(coop))),
+                   tag = "cp_dat")
+stk_catch = inla.stack(c_stk, cp_stk)
+# stk = inla.stack(e_stk, c_stk)
+stk = inla.stack(stk_edna, stk_catch)
 
 # formula
 formula = y ~ 0 + eb.0 + cb.0 + f(i.e, model = spde) + f(x, model = spde) + f(i.c, copy = "i.e", fixed = FALSE)
