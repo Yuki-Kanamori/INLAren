@@ -144,7 +144,7 @@ c_stk = inla.stack(data = list(y = cbind(NA, catch)),
                    effects = list(list(i.c = 1:mesh2$n, x = 1:mesh2$n), cb.0 = rep(1, length(catch))),
                    tag = "c_dat")
 cp_stk = inla.stack(data = list(y = cbind(na[, 1], na[, 2])),
-                   A = list(c_A, 1),
+                   A = list(Ap, 1),
                    effects = list(list(i.c = 1:mesh2$n, x = 1:mesh2$n), cb.0 = rep(1, nrow(coop))),
                    tag = "cp_dat")
 stk_catch = inla.stack(c_stk, cp_stk)
