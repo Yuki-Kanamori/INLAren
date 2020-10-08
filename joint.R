@@ -58,6 +58,13 @@ points(c_loc, col = "red", pch = 16, cex = .5)
 points(e_loc, col = "green", pch = 16, cex = .5)
 mesh2$n #618
 
+# bound3 = inla.nonconvex.hull(loc, convex = 0.05, concave = -0.15)
+# mesh3 = inla.mesh.2d(boundary = bound3, max.edge = c(0.04, 0.06), cutoff = 0.08/5)
+# plot(mesh3)
+# points(c_loc, col = "red", pch = 16, cex = .5)
+# points(e_loc, col = "green", pch = 16, cex = .5)
+# mesh3$n #426
+
 # projector matricies
 e_A = inla.spde.make.A(mesh2, loc = e_loc)
 dim(e_A) # 199, 618
