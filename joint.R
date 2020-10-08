@@ -33,7 +33,7 @@ c_mako = data %>% filter(FISH == "makogarei", Y == 2018)
 # c_mako = data %>% filter(FISH == "makogarei", Y == 2018, M > 2) #eDNAと月を揃えた方が良い？
 summary(c_mako)
 catch = (c_mako$CATCH > 0) + 0
-
+summary(catch)
 
 # INLA ----------------------------------------------------------
 #lonlat
