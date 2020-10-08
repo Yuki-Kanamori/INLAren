@@ -496,6 +496,13 @@ grid.arrange(m, sd, ncol = 2)
 
 
 
+# rw1 -----------------------------------------------------------
+plot(res_suzu$summary.random$`inla.group(temp)`$ID,
+     res_suzu$summary.random$`inla.group(temp)`$mean,
+     type = "l", ylab = "Temp effect", xlab = "Temp", 
+     cex.naim = 1.5, cex.lab = 1.5, cex.axis = 1.5, cex = 1.5, lwd = 2)
+
+
 
 
 # コノシロ ------------------------------------
