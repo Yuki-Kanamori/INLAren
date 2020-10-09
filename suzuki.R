@@ -142,62 +142,89 @@ dim(Ap) #398, 618
 spde = inla.spde2.pcmatern(mesh = mesh2, alpha = 2, prior.range = c(0.01, 0.05), prior.sigma = c(1, 0.01))
 
 # stack for eDNA
+# categorical variables
+# e_stk = inla.stack(data = list(y = cbind(edna, NA)),
+#                    A = list(e_A, 1),
+#                    effects = list(i.e = 1:mesh2$n, list(eb.0 = rep(1, length(edna)), temp = e_fish$temp, salinity = e_fish$salinity, DO = e_fish$DO, pH = e_fish$pH, e_month = as.factor(e_fish$Month))),
+#                    tag = "e_dat")
+# na = as.matrix(cbind(rep(NA, nrow(coop)), rep(NA, nrow(coop))))
+# ep_stk = inla.stack(data = list(y = cbind(na[, 1], na[, 2])),
+#                     A = list(Ap, 1),
+#                     effects = list(i.e = 1:mesh2$n, 
+#                                    list(eb.0 = rep(1, nrow(coop)), temp = rep(1, nrow(coop)), salinity = rep(1, nrow(coop)), DO = rep(1, nrow(coop)), pH = rep(1, nrow(coop)), e_month = rep(1, nrow(coop)))
+#                     ),
+#                     tag = "ep_dat")
 e_stk = inla.stack(data = list(y = cbind(edna, NA)),
                    A = list(e_A, 1),
-                   effects = list(i.e = 1:mesh2$n, list(eb.0 = rep(1, length(edna)), temp = e_fish$temp, salinity = e_fish$salinity, DO = e_fish$DO, pH = e_fish$pH, e_month = as.factor(e_fish$Month))),
+                   effects = list(i.e = 1:mesh2$n, list(eb.0 = rep(1, length(edna)), temp = e_fish$temp, salinity = e_fish$salinity, DO = e_fish$DO, pH = e_fish$pH)),
                    tag = "e_dat")
 na = as.matrix(cbind(rep(NA, nrow(coop)), rep(NA, nrow(coop))))
 ep_stk = inla.stack(data = list(y = cbind(na[, 1], na[, 2])),
                     A = list(Ap, 1),
                     effects = list(i.e = 1:mesh2$n, 
-                                   list(eb.0 = rep(1, nrow(coop)), temp = rep(1, nrow(coop)), salinity = rep(1, nrow(coop)), DO = rep(1, nrow(coop)), pH = rep(1, nrow(coop)), e_month = rep(1, nrow(coop)))
+                                   list(eb.0 = rep(1, nrow(coop)), temp = rep(1, nrow(coop)), salinity = rep(1, nrow(coop)), DO = rep(1, nrow(coop)), pH = rep(1, nrow(coop)))
                     ),
                     tag = "ep_dat")
 stk_edna = inla.stack(e_stk, ep_stk)
 
+# categorical variables
+# c_stk = inla.stack(data = list(y = cbind(NA, catch)),
+#                    A = list(c_A, 1),
+#                    effects = list(list(i.c = 1:mesh2$n, x = 1:mesh2$n), 
+#                                   list(cb.0 = rep(1, length(catch)), c_month = as.factor(c_fish$Month), gear = as.factor(c_fish$Gear))
+#                    ),
+#                    tag = "c_dat")
+# cp_stk = inla.stack(data = list(y = cbind(na[, 1], na[, 2])),
+#                     A = list(Ap, 1),
+#                     effects = list(list(i.c = 1:mesh2$n, x = 1:mesh2$n), 
+#                                    list(cb.0 = rep(1, nrow(coop)), c_month = rep(1, nrow(coop)), gear = rep(1, nrow(coop)))
+#                     ),
+#                     tag = "cp_dat")
 c_stk = inla.stack(data = list(y = cbind(NA, catch)),
                    A = list(c_A, 1),
                    effects = list(list(i.c = 1:mesh2$n, x = 1:mesh2$n), 
-                                  list(cb.0 = rep(1, length(catch)), c_month = as.factor(c_fish$Month), gear = as.factor(c_fish$Gear))
+                                  list(cb.0 = rep(1, length(catch)))
                    ),
                    tag = "c_dat")
 cp_stk = inla.stack(data = list(y = cbind(na[, 1], na[, 2])),
                     A = list(Ap, 1),
                     effects = list(list(i.c = 1:mesh2$n, x = 1:mesh2$n), 
-                                   list(cb.0 = rep(1, nrow(coop)), c_month = rep(1, nrow(coop)), gear = rep(1, nrow(coop)))
+                                   list(cb.0 = rep(1, nrow(coop)))
                     ),
                     tag = "cp_dat")
 stk_catch = inla.stack(c_stk, cp_stk)
 stk = inla.stack(stk_edna, stk_catch)
 
 # formula
-formula = y ~ 0 + eb.0 + cb.0 + e_month + c_month + gear + f(temp, model = "rw1") + f(salinity, model = "rw1") + f(DO, model = "rw1") + f(pH, model = "rw1") + f(i.e, model = spde) + f(x, model = spde) + f(i.c, copy = "i.e", fixed = FALSE)
-formula2 = y ~ 0 + eb.0 + cb.0 + e_month + c_month + gear + f(inla.group(temp), model = "rw2") + f(inla.group(salinity), model = "rw2") + f(inla.group(DO), model = "rw2") + f(inla.group(pH), model = "rw2") + f(i.e, model = spde) + f(x, model = spde) + f(i.c, copy = "i.e", fixed = FALSE) #inla.groupがないとinla()でエラーが出る
-formula3 = y ~ 0 + eb.0 + cb.0 + f(e_month, model = "rw1", cyclic = TRUE, scale.model = TRUE) + f(c_month, model = "rw1", cyclic = TRUE, scale.model = TRUE) + gear + f(temp, model = "rw1") + f(salinity, model = "rw1") + f(DO, model = "rw1") + f(pH, model = "rw1") + f(i.e, model = spde) + f(x, model = spde) + f(i.c, copy = "i.e", fixed = FALSE)
+# formula = y ~ 0 + eb.0 + cb.0 + e_month + c_month + gear + f(temp, model = "rw1") + f(salinity, model = "rw1") + f(DO, model = "rw1") + f(pH, model = "rw1") + f(i.e, model = spde) + f(x, model = spde) + f(i.c, copy = "i.e", fixed = FALSE)
+# formula2 = y ~ 0 + eb.0 + cb.0 + e_month + c_month + gear + f(inla.group(temp), model = "rw2") + f(inla.group(salinity), model = "rw2") + f(inla.group(DO), model = "rw2") + f(inla.group(pH), model = "rw2") + f(i.e, model = spde) + f(x, model = spde) + f(i.c, copy = "i.e", fixed = FALSE) #inla.groupがないとinla()でエラーが出る
+# formula3 = y ~ 0 + eb.0 + cb.0 + f(e_month, model = "rw1", cyclic = TRUE, scale.model = TRUE) + f(c_month, model = "rw1", cyclic = TRUE, scale.model = TRUE) + gear + f(temp, model = "rw1") + f(salinity, model = "rw1") + f(DO, model = "rw1") + f(pH, model = "rw1") + f(i.e, model = spde) + f(x, model = spde) + f(i.c, copy = "i.e", fixed = FALSE)
+
+formula = y ~ 0 + eb.0 + cb.0 + f(temp, model = "rw1") + f(salinity, model = "rw1") + f(DO, model = "rw1") + f(pH, model = "rw1") + f(i.e, model = spde) + f(x, model = spde) + f(i.c, copy = "i.e", fixed = FALSE)
+formula2 = y ~ 0 + eb.0 + cb.0 + f(inla.group(temp), model = "rw2") + f(inla.group(salinity), model = "rw2") + f(inla.group(DO), model = "rw2") + f(inla.group(pH), model = "rw2") + f(i.e, model = spde) + f(x, model = spde) + f(i.c, copy = "i.e", fixed = FALSE) #inla.groupがないとinla()でエラーが出る
 
 # fitting
-res_suzu = inla(formula, data = inla.stack.data(stk), family = c("binomial", "binomial"), control.predictor = list(compute = TRUE, A = inla.stack.A(stk)), control.results = list(return.marginals.random = FALSE, return.marginals.predictor = FALSE), control.compute = list(waic = TRUE, dic = TRUE), control.fixed = list(expand.factor.strategy = "inla"))
-res_suzu2 = inla(formula2, data = inla.stack.data(stk), family = c("binomial", "binomial"), control.predictor = list(compute = TRUE, A = inla.stack.A(stk)), control.results = list(return.marginals.random = FALSE, return.marginals.predictor = FALSE), control.compute = list(waic = TRUE, dic = TRUE), control.fixed = list(expand.factor.strategy = "inla"))
-res_suzu3 = inla(formula3, data = inla.stack.data(stk), family = c("binomial", "binomial"), control.predictor = list(compute = TRUE, A = inla.stack.A(stk)), control.results = list(return.marginals.random = FALSE, return.marginals.predictor = FALSE), control.compute = list(waic = TRUE, dic = TRUE), control.fixed = list(expand.factor.strategy = "inla"))
+res_suzu = inla(formula, data = inla.stack.data(stk), family = c("binomial", "binomial"), control.predictor = list(compute = TRUE, A = inla.stack.A(stk)), control.results = list(return.marginals.random = FALSE, return.marginals.predictor = FALSE), control.compute = list(waic = TRUE, dic = TRUE))
+res_suzu2 = inla(formula2, data = inla.stack.data(stk), family = c("binomial", "binomial"), control.predictor = list(compute = TRUE, A = inla.stack.A(stk)), control.results = list(return.marginals.random = FALSE, return.marginals.predictor = FALSE), control.compute = list(waic = TRUE, dic = TRUE))
 
-res_suzu$waic$waic; res_suzu$dic$dic #3013, Inf
-res_suzu2$waic$waic; res_suzu2$dic$dic #3025, NaN
-res_suzu3$waic$waic; res_suzu3$dic$dic #3027, 3028
+res_suzu$waic$waic; res_suzu$dic$dic #3013, Inf (with cate), 3077, 3078 (without cate)
+res_suzu2$waic$waic; res_suzu2$dic$dic #3025, NaN (with cate), 3088, 3088 (without cate)
 
 summary(res_suzu)
 summary(res_suzu2)
-summary(res_suzu3)
 
 # plot the fitted values on a map -------------------------------
+best_suzu = res_suzu
+
 index_ep = inla.stack.index(stk, tag = "ep_dat")$data
 index_cp = inla.stack.index(stk, tag = "cp_dat")$data
 
-pred_mean_e = res_suzu$summary.fitted.values[index_ep, "mean"]
-pred_mean_c = res_suzu$summary.fitted.values[index_cp, "mean"]
-pred_ll_e = res_suzu$summary.fitted.values[index_ep, "0.025quant"]
-pred_ul_e = res_suzu$summary.fitted.values[index_ep, "0.975quant"]
-pred_ll_c = res_suzu$summary.fitted.values[index_cp, "0.025quant"]
-pred_ul_c = res_suzu$summary.fitted.values[index_cp, "0.975quant"]
+pred_mean_e = best_suzu$summary.fitted.values[index_ep, "mean"]
+pred_mean_c = best_suzu$summary.fitted.values[index_cp, "mean"]
+pred_ll_e = best_suzu$summary.fitted.values[index_ep, "0.025quant"]
+pred_ul_e = best_suzu$summary.fitted.values[index_ep, "0.975quant"]
+pred_ll_c = best_suzu$summary.fitted.values[index_cp, "0.025quant"]
+pred_ul_c = best_suzu$summary.fitted.values[index_cp, "0.975quant"]
 
 dpm_e = rbind(data.frame(east = coop[, 1], north = coop[, 2],
                          value = pred_mean_e, variable = "pred_mean_eDNA"),
@@ -248,8 +275,8 @@ g+t+f+c+s+pol+c_map+theme_bw()+labs(title = "suzuki")
 range_e = apply(mesh2$loc[, c(1, 2)], 2, range)
 # range_e = apply(coop, 2, range)
 proj_e = inla.mesh.projector(mesh2, xlim = range_e[, 1], ylim = range_e[, 2], dims = c(50, 50))
-mean_s_ie = inla.mesh.project(proj_e, res_suzu$summary.random$i.e$mean)
-sd_s_ie = inla.mesh.project(proj_e, res_suzu$summary.random$i.e$sd)
+mean_s_ie = inla.mesh.project(proj_e, best_suzu$summary.random$i.e$mean)
+sd_s_ie = inla.mesh.project(proj_e, best_suzu$summary.random$i.e$sd)
 
 df_ie = expand.grid(x = proj_e$x, y = proj_e$y)
 df_ie$mean_s = as.vector(mean_s_ie)
@@ -305,28 +332,28 @@ plot(res_suzu$summary.random$`inla.group(pH)`$ID,
      cex.naim = 1.5, cex.lab = 1.5, cex.axis = 1.5, cex = 1.5, lwd = 2)
 
 #not using inla.group
-plot(res_suzu$summary.random$temp$ID,
-     res_suzu$summary.random$temp$mean,
+plot(best_suzu$summary.random$temp$ID,
+     best_suzu$summary.random$temp$mean,
      type = "l", ylab = "Temp effect", xlab = "Temp", 
      cex.naim = 1.5, cex.lab = 1.5, cex.axis = 1.5, cex = 1.5, lwd = 2)
-plot(res_suzu$summary.random$salinity$ID,
-     res_suzu$summary.random$salinity$mean,
+plot(best_suzu$summary.random$salinity$ID,
+     best_suzu$summary.random$salinity$mean,
      type = "l", ylab = "Sal. effect", xlab = "Salinity", 
      cex.naim = 1.5, cex.lab = 1.5, cex.axis = 1.5, cex = 1.5, lwd = 2)
 summary(e_fish)
-plot(res_suzu$summary.random$DO$ID,
-     res_suzu$summary.random$DO$mean,
+plot(best_suzu$summary.random$DO$ID,
+     best_suzu$summary.random$DO$mean,
      type = "l", ylab = "DO effect", xlab = "DO", 
      cex.naim = 1.5, cex.lab = 1.5, cex.axis = 1.5, cex = 1.5, lwd = 2)
-plot(res_suzu$summary.random$pH$ID,
-     res_suzu$summary.random$pH$mean,
+plot(best_suzu$summary.random$pH$ID,
+     best_suzu$summary.random$pH$mean,
      type = "l", ylab = "pH effect", xlab = "pH", 
      cex.naim = 1.5, cex.lab = 1.5, cex.axis = 1.5, cex = 1.5, lwd = 2)
 
-effect = rbind(data.frame(x = res_suzu$summary.random$temp$ID, y = res_suzu$summary.random$temp$mean, variable = "temp"),
-               data.frame(x = res_suzu$summary.random$salinity$ID, y = res_suzu$summary.random$salinity$mean, variable = "sal"),
-               data.frame(x = res_suzu$summary.random$DO$ID, y = res_suzu$summary.random$DO$mean, variable = "do"),
-               data.frame(x = res_suzu$summary.random$pH$ID, y = res_suzu$summary.random$pH$mean, variable = "ph"))
+effect = rbind(data.frame(x = best_suzu$summary.random$temp$ID, y = best_suzu$summary.random$temp$mean, variable = "temp"),
+               data.frame(x = best_suzu$summary.random$salinity$ID, y = best_suzu$summary.random$salinity$mean, variable = "sal"),
+               data.frame(x = best_suzu$summary.random$DO$ID, y = best_suzu$summary.random$DO$mean, variable = "do"),
+               data.frame(x = best_suzu$summary.random$pH$ID, y = best_suzu$summary.random$pH$mean, variable = "ph"))
 effect = effect %>% filter(x != 1)
 g = ggplot(effect, aes(x = x, y = y))
 l = geom_line()
