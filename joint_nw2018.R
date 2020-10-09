@@ -155,6 +155,10 @@ ep_stk = inla.stack(data = list(y = cbind(na[, 1], na[, 2])),
                                    list(eb.0 = rep(1, nrow(coop)), temp = rep(1, nrow(coop)), salinity = rep(1, nrow(coop)), DO = rep(1, nrow(coop)), pH = rep(1, nrow(coop)), e_month = rep(1, nrow(coop)))
                     ),
                     tag = "ep_dat")
+# ep_stk = inla.stack(data = list(y = cbind(na[, 1], na[, 2])),
+#                     A = list(Ap, 1),
+#                     effects = list(i.e = 1:mesh2$n, list(eb.0 = rep(1, nrow(coop)), temp = e_ana$temp, salinity = e_ana$salinity, DO = e_ana$DO, pH = e_ana$pH)),
+#                     tag = "ep_dat")
 stk_edna = inla.stack(e_stk, ep_stk)
 
 c_stk = inla.stack(data = list(y = cbind(NA, catch)),
@@ -192,7 +196,7 @@ summary(res_ana2)
 summary(res_ana3)
 
 # plot the fitted values on a map -------------------------------
-best_ana = res_ana3
+best_ana = res_ana2
 
 index_ep = inla.stack.index(stk, tag = "ep_dat")$data
 index_cp = inla.stack.index(stk, tag = "cp_dat")$data
