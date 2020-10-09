@@ -392,10 +392,16 @@ stk_catch = inla.stack(c_stk, cp_stk)
 stk = inla.stack(stk_edna, stk_catch)
 
 # formula
-formula = y ~ 0 + eb.0 + cb.0 + f(inla.group(temp), model = "rw1") + f(inla.group(salinity), model = "rw1") + f(inla.group(DO), model = "rw1") + f(inla.group(pH), model = "rw1") + f(i.e, model = spde) + f(x, model = spde) + f(i.c, copy = "i.e", fixed = FALSE)
+formula1 = y ~ 0 + eb.0 + cb.0 + f(inla.group(temp), model = "rw1") + f(inla.group(salinity), model = "rw1") + f(inla.group(DO), model = "rw1") + f(inla.group(pH), model = "rw1") + f(i.e, model = spde) + f(x, model = spde) + f(i.c, copy = "i.e", fixed = FALSE)
+formula = y ~ 0 + eb.0 + cb.0 + f(temp, model = "rw1") + f(salinity, model = "rw1") + f(DO, model = "rw1") + f(pH, model = "rw1") + f(i.e, model = spde) + f(x, model = spde) + f(i.c, copy = "i.e", fixed = FALSE)
 
 # fitting
-res_suzu = inla(formula, data = inla.stack.data(stk), family = c("binomial", "binomial"), control.predictor = list(compute = TRUE, A = inla.stack.A(stk)), control.results = list(return.marginals.random = FALSE, return.marginals.predictor = FALSE))
+res_suzu1 = inla(formula1, data = inla.stack.data(stk), family = c("binomial", "binomial"), control.predictor = list(compute = TRUE, A = inla.stack.A(stk)), control.results = list(return.marginals.random = FALSE, return.marginals.predictor = FALSE), control.compute = list(dic = TRUE, waic = TRUE))
+res_suzu = inla(formula, data = inla.stack.data(stk), family = c("binomial", "binomial"), control.predictor = list(compute = TRUE, A = inla.stack.A(stk)), control.results = list(return.marginals.random = FALSE, return.marginals.predictor = FALSE), control.compute = list(dic = TRUE, waic = TRUE))
+res_suzu1$dic$dic #3078
+res_suzu1$waic$waic #3078
+res_suzu$dic$dic #3078
+res_suzu$waic$waic #3077
 summary(res_suzu)
 
 # plot the fitted values on a map -------------------------------
@@ -501,8 +507,48 @@ plot(res_suzu$summary.random$`inla.group(temp)`$ID,
      res_suzu$summary.random$`inla.group(temp)`$mean,
      type = "l", ylab = "Temp effect", xlab = "Temp", 
      cex.naim = 1.5, cex.lab = 1.5, cex.axis = 1.5, cex = 1.5, lwd = 2)
+plot(res_suzu$summary.random$`inla.group(salinity)`$ID,
+     res_suzu$summary.random$`inla.group(salinity)`$mean,
+     type = "l", ylab = "Sal. effect", xlab = "Salinity", 
+     cex.naim = 1.5, cex.lab = 1.5, cex.axis = 1.5, cex = 1.5, lwd = 2)
+plot(res_suzu$summary.random$`inla.group(DO)`$ID,
+     res_suzu$summary.random$`inla.group(DO)`$mean,
+     type = "l", ylab = "DO effect", xlab = "DO", 
+     cex.naim = 1.5, cex.lab = 1.5, cex.axis = 1.5, cex = 1.5, lwd = 2)
+plot(res_suzu$summary.random$`inla.group(pH)`$ID,
+     res_suzu$summary.random$`inla.group(pH)`$mean,
+     type = "l", ylab = "pH effect", xlab = "pH", 
+     cex.naim = 1.5, cex.lab = 1.5, cex.axis = 1.5, cex = 1.5, lwd = 2)
 
+#not using inla.group
+plot(res_suzu$summary.random$temp$ID,
+     res_suzu$summary.random$temp$mean,
+     type = "l", ylab = "Temp effect", xlab = "Temp", 
+     cex.naim = 1.5, cex.lab = 1.5, cex.axis = 1.5, cex = 1.5, lwd = 2)
+plot(res_suzu$summary.random$salinity$ID,
+     res_suzu$summary.random$salinity$mean,
+     type = "l", ylab = "Sal. effect", xlab = "Salinity", 
+     cex.naim = 1.5, cex.lab = 1.5, cex.axis = 1.5, cex = 1.5, lwd = 2)
+summary(e_fish)
+plot(res_suzu$summary.random$DO$ID,
+     res_suzu$summary.random$DO$mean,
+     type = "l", ylab = "DO effect", xlab = "DO", 
+     cex.naim = 1.5, cex.lab = 1.5, cex.axis = 1.5, cex = 1.5, lwd = 2)
+plot(res_suzu$summary.random$pH$ID,
+     res_suzu$summary.random$pH$mean,
+     type = "l", ylab = "pH effect", xlab = "pH", 
+     cex.naim = 1.5, cex.lab = 1.5, cex.axis = 1.5, cex = 1.5, lwd = 2)
 
+effect = rbind(data.frame(x = res_suzu$summary.random$temp$ID, y = res_suzu$summary.random$temp$mean, variable = "temp"),
+               data.frame(x = res_suzu$summary.random$salinity$ID, y = res_suzu$summary.random$salinity$mean, variable = "sal"),
+               data.frame(x = res_suzu$summary.random$DO$ID, y = res_suzu$summary.random$DO$mean, variable = "do"),
+               data.frame(x = res_suzu$summary.random$pH$ID, y = res_suzu$summary.random$pH$mean, variable = "ph"))
+effect = effect %>% filter(x != 1)
+g = ggplot(effect, aes(x = x, y = y))
+l = geom_line()
+f = facet_wrap(~ variable, scales = "free")
+labs = labs(x = "Environmental variable", y = "Effect of environment", title = "suzuki")
+g+l+f+labs+theme_bw()
 
 
 # コノシロ ------------------------------------
