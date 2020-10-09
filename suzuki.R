@@ -116,7 +116,7 @@ summary(map.sp)
 # make a polygon ------------------------------------------------------------
 pl.sel <- SpatialPolygons(list(Polygons(list(Polygon(
   cbind(c(139.7, 139.5, 139.7, 140.1, 140.3, 139.9), # x-axis 
-        c(35,  35.4,  35.8,  35.8,  35.4,  35)), # y-axis
+        c(35.1,  35.4,  35.8,  35.8,  35.4,  35.1)), # y-axis
   FALSE)), '0')), proj4string = CRS(proj4string(map.sp))) #緯度経度データ
 summary(pl.sel)
 poly.water <- gDifference(pl.sel, map.sp)
