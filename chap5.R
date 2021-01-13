@@ -123,12 +123,18 @@ points(loc.corr[1], loc.corr[2], pch = 19)
 ## ------------------------------------------------------------------------
 set.seed(201805)
 loc.data <- spsample(poly.water, n = 1000, type = "random")
-loc.data <- loc.data@coords
+loc.data <- loc.data@coords #緯度経度じゃないデータ
 
 ## ------------------------------------------------------------------------
 # Seed is the month the code was first written times some number
 u <- inla.qsample(n = 1, Q = Q, seed = 201805 * 3)[, 1]
 A.data <- inla.spde.make.A(mesh, loc.data)
+dim(A.data) #1000, 1525
+table(rowSums(A.data) > 0) #TRUE1000
+table(rowSums(A.data)) #1が1000
+table(colSums(A.data) > 0) #FALSEが669, TRUEが856
+plot(mesh)
+points(loc.data, col = "green", pch = 15, cex = 1)
 u.data <- A.data %*% u
 
 # df is the dataframe used for modeling
