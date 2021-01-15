@@ -46,6 +46,7 @@ map.sp = spTransform(map.sp, kmproj)
 ## ------------------------------------------------------------------------
 mesh.not <- inla.mesh.2d(boundary = poly.water, max.edge = 30,
                          cutoff = 2)
+plot(mesh.not)
 
 ## ----label = "plot-barr-mesh1", fig = TRUE, echo = FALSE, fig.align = "center", fig.width = 10, heigh = 4.5, width = '97%', fig.cap = "The left plot shows the polygon for land in grey and the manually constructed polygon for our study area in light blue. The right plot shows the simple mesh, constructed only in the water."----
 par(mfrow = c(1, 2), mar = c(3, 3, 0.5, 0.5), mgp = c(2, 0.7, 0), las = 1)
